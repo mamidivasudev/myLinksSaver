@@ -1097,6 +1097,52 @@
       const NOTES_KEY = NOTES_PREFIX + 'notes_v1';
       const LASTCAT_KEY = NOTES_PREFIX + 'lastCategory';
 
+      // Safe Storage Wrapper (falls back to memory if localStorage is blocked/unavailable/disabled)
+      const storage = {
+        isSupported: (() => {
+          try {
+            localStorage.setItem('__storage_test__', '1');
+            localStorage.removeItem('__storage_test__');
+            return true;
+          } catch (e) {
+            return false;
+          }
+        })(),
+        memory: {},
+        getItem(key) {
+          if (this.isSupported) {
+            try {
+              return localStorage.getItem(key);
+            } catch (e) {
+              return this.memory[key] || null;
+            }
+          }
+          return this.memory[key] || null;
+        },
+        setItem(key, value) {
+          if (this.isSupported) {
+            try {
+              localStorage.setItem(key, value);
+              return;
+            } catch (e) {
+              console.warn("Storage write failed", e);
+            }
+          }
+          this.memory[key] = String(value);
+        },
+        removeItem(key) {
+          if (this.isSupported) {
+            try {
+              localStorage.removeItem(key);
+              return;
+            } catch (e) {
+              delete this.memory[key];
+            }
+          }
+          delete this.memory[key];
+        }
+      };
+
       const catTrigger = document.getElementById('catTrigger');
       const catTriggerLabel = document.getElementById('catTriggerLabel');
       const catMenu = document.getElementById('catMenu');
@@ -1202,7 +1248,7 @@
         if (!window.showDirectoryPicker) { alert('Directory Picker not supported.'); return; }
         try {
           const dirHandle = await window.showDirectoryPicker();
-          localStorage.setItem(NOTES_PREFIX + 'syncFolderName', dirHandle.name);
+          storage.setItem(NOTES_PREFIX + 'syncFolderName', dirHandle.name);
 
           // Request permission
           if (await dirHandle.requestPermission({ mode: 'readwrite' }) !== 'granted') {
@@ -1262,16 +1308,16 @@
       }
       // ─────────────────────────────────────────────────────────────────
 
-      let categories = JSON.parse(localStorage.getItem(CATS_KEY)) || ['General'];
-      let notesData = JSON.parse(localStorage.getItem(NOTES_KEY)) || {};
+      let categories = JSON.parse(storage.getItem(CATS_KEY)) || ['General'];
+      let notesData = JSON.parse(storage.getItem(NOTES_KEY)) || {};
       let selectedCategory = null;
       let selectedNoteIndex = null;
 
       const uid = () => Math.random().toString(36).slice(2, 9);
       const saveStorage = () => { 
         try { 
-          localStorage.setItem(CATS_KEY, JSON.stringify(categories)); 
-          localStorage.setItem(NOTES_KEY, JSON.stringify(notesData)); 
+          storage.setItem(CATS_KEY, JSON.stringify(categories)); 
+          storage.setItem(NOTES_KEY, JSON.stringify(notesData)); 
         } catch (e) {
           console.warn("Browser LocalStorage is full (5MB limit reached). Saving safely directly to sync file instead!", e);
         }
@@ -1293,10 +1339,15 @@
         return escaped.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
       }
 
+      const _domParser = new DOMParser();
       function stripHtml(html) {
         if (!html) return '';
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        return doc.body.textContent || "";
+        try {
+          const doc = _domParser.parseFromString(html, 'text/html');
+          return doc.body.textContent || "";
+        } catch (e) {
+          return html.replace(/<[^>]*>/g, '');
+        }
       }
 
       // Show toast message (must be inside DOMContentLoaded so DOM exists)
@@ -1355,7 +1406,7 @@
       function setCategoryTrigger(cat) {
         selectedCategory = cat;
         catTriggerLabel.textContent = cat || '-- Select --';
-        localStorage.setItem(LASTCAT_KEY, cat || '');
+        storage.setItem(LASTCAT_KEY, cat || '');
       }
 
       function buildCatMenu() {
@@ -1498,7 +1549,7 @@
               });
               if (selectedCats.has(selectedCategory)) {
                 selectedCategory = categories[0] || null;
-                if (selectedCategory) localStorage.setItem(LASTCAT_KEY, selectedCategory);
+                if (selectedCategory) storage.setItem(LASTCAT_KEY, selectedCategory);
                 setCategoryTrigger(selectedCategory);
               }
               saveStorage();
@@ -1560,7 +1611,7 @@
 
           if (selectedCategory === catName) {
             selectedCategory = n;
-            localStorage.setItem(LASTCAT_KEY, n);
+            storage.setItem(LASTCAT_KEY, n);
             setCategoryTrigger(n);
           }
 
@@ -1594,7 +1645,7 @@
 
         if (selectedCategory === catName) {
           selectedCategory = categories[0] || null;
-          if (selectedCategory) localStorage.setItem(LASTCAT_KEY, selectedCategory);
+          if (selectedCategory) storage.setItem(LASTCAT_KEY, selectedCategory);
           setCategoryTrigger(selectedCategory);
         }
 
@@ -1607,7 +1658,7 @@
       }
 
       function updateCategoryDropdown() {
-        const last = localStorage.getItem(LASTCAT_KEY);
+        const last = storage.getItem(LASTCAT_KEY);
         if (last && categories.includes(last)) setCategoryTrigger(last);
         else if (categories.length) setCategoryTrigger(categories[0]);
         else setCategoryTrigger(null);
@@ -1639,10 +1690,10 @@
 
       // Settings application
       function applySettings() {
-        const ff = localStorage.getItem(NOTES_PREFIX + 'fontFamily') || "'Lexend', sans-serif";
-        const fs = localStorage.getItem(NOTES_PREFIX + 'fontSize') || '16px';
-        const lh = localStorage.getItem(NOTES_PREFIX + 'lineHeight') || '1.6';
-        const ww = localStorage.getItem(NOTES_PREFIX + 'wordWrap') !== 'false';
+        const ff = storage.getItem(NOTES_PREFIX + 'fontFamily') || "'Lexend', sans-serif";
+        const fs = storage.getItem(NOTES_PREFIX + 'fontSize') || '16px';
+        const lh = storage.getItem(NOTES_PREFIX + 'lineHeight') || '1.6';
+        const ww = storage.getItem(NOTES_PREFIX + 'wordWrap') !== 'false';
         editor.style.fontFamily = ff;
         editor.style.fontSize = fs;
         editor.style.lineHeight = lh;
@@ -1654,37 +1705,37 @@
       }
 
       settingFontFamily.addEventListener('change', () => {
-        localStorage.setItem(NOTES_PREFIX + 'fontFamily', settingFontFamily.value);
+        storage.setItem(NOTES_PREFIX + 'fontFamily', settingFontFamily.value);
         applySettings();
       });
 
       settingFontSize.addEventListener('change', () => {
-        localStorage.setItem(NOTES_PREFIX + 'fontSize', settingFontSize.value);
+        storage.setItem(NOTES_PREFIX + 'fontSize', settingFontSize.value);
         applySettings();
       });
 
       settingLineHeight.addEventListener('change', () => {
-        localStorage.setItem(NOTES_PREFIX + 'lineHeight', settingLineHeight.value);
+        storage.setItem(NOTES_PREFIX + 'lineHeight', settingLineHeight.value);
         applySettings();
       });
 
       settingWordWrap.addEventListener('change', () => {
-        localStorage.setItem(NOTES_PREFIX + 'wordWrap', settingWordWrap.checked);
+        storage.setItem(NOTES_PREFIX + 'wordWrap', settingWordWrap.checked);
         applySettings();
       });
 
       resetFontFamily.addEventListener('click', () => {
-        localStorage.setItem(NOTES_PREFIX + 'fontFamily', "'Lexend', sans-serif");
+        storage.setItem(NOTES_PREFIX + 'fontFamily', "'Lexend', sans-serif");
         applySettings();
       });
 
       resetFontSize.addEventListener('click', () => {
-        localStorage.setItem(NOTES_PREFIX + 'fontSize', '16px');
+        storage.setItem(NOTES_PREFIX + 'fontSize', '16px');
         applySettings();
       });
 
       resetLineHeight.addEventListener('click', () => {
-        localStorage.setItem(NOTES_PREFIX + 'lineHeight', '1.6');
+        storage.setItem(NOTES_PREFIX + 'lineHeight', '1.6');
         applySettings();
       });
 
@@ -1735,14 +1786,18 @@
         notesListInner.innerHTML = '';
 
         if (!selectedCategory) {
-          notesListInner.innerHTML = `<div class="empty-state"><i data-lucide="folder-open" size="28"></i><span>Select a category</span></div>`;
-          try { lucide.createIcons(); } catch { }
+          notesListInner.innerHTML = `<div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open"><path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"/></svg>
+            <span>Select a category</span>
+          </div>`;
           return;
         }
         const arr = notesData[selectedCategory] || [];
         if (arr.length === 0) {
-          notesListInner.innerHTML = `<div class="empty-state"><i data-lucide="file-plus" size="28"></i><span>No notes yet</span></div>`;
-          try { lucide.createIcons(); } catch { }
+          notesListInner.innerHTML = `<div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-plus"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 12v6"/></svg>
+            <span>No notes yet</span>
+          </div>`;
           return;
         }
 
@@ -1781,9 +1836,16 @@
 
           const title = document.createElement('div');
           title.className = 'title';
-          const plainContent = stripHtml(note.content || '');
-          const firstLine = plainContent.replace(/\r\n/g, '\n').split('\n')[0].trim();
-          const displayTitle = (note.title && note.title.toString().trim()) ? note.title.toString().trim() : (firstLine || 'Untitled Note');
+          
+          let displayTitle = 'Untitled Note';
+          if (note.title && note.title.toString().trim()) {
+            displayTitle = note.title.toString().trim();
+          } else {
+            const plainContent = stripHtml((note.content || '').slice(0, 1000));
+            const firstLine = plainContent.replace(/\r\n/g, '\n').split('\n')[0].trim();
+            displayTitle = firstLine || 'Untitled Note';
+          }
+          
           title.title = displayTitle;
           const truncated = displayTitle.slice(0, 60);
           title.innerHTML = makeLinksClickable(truncated);
@@ -1797,7 +1859,7 @@
 
           const moreBtn = document.createElement('button');
           moreBtn.title = 'Options';
-          moreBtn.innerHTML = '<i data-lucide="more-vertical" size="16"></i>';
+          moreBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>`;
           moreBtn.addEventListener('click', (ev) => {
             ev.stopPropagation();
             showNoteContextMenu(ev, realIndex);
@@ -1810,8 +1872,6 @@
 
           notesListInner.appendChild(row);
         });
-
-        try { lucide.createIcons(); } catch { }
       }
 
       const bulkActions = document.getElementById('bulkActions');
@@ -2083,9 +2143,14 @@
           if (selectedNoteIndex !== null && selectedCategory) {
             const note = (notesData[selectedCategory] || [])[selectedNoteIndex];
             if (note) {
-              const plainContent = stripHtml(note.content || '');
-              const firstLine = plainContent.replace(/\r\n/g, '\n').split('\n')[0].trim();
-              const title = (note.title && note.title.trim()) ? note.title.trim() : (firstLine || 'Untitled');
+              let title = 'Untitled';
+              if (note.title && note.title.trim()) {
+                title = note.title.trim();
+              } else {
+                const plainContent = stripHtml((note.content || '').slice(0, 1000));
+                const firstLine = plainContent.replace(/\r\n/g, '\n').split('\n')[0].trim();
+                title = firstLine || 'Untitled';
+              }
               noteEl.textContent = title.slice(0, 50);
             } else noteEl.textContent = '';
           } else noteEl.textContent = '';
