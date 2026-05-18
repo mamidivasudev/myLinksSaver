@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Favorite Links</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --bg-light: #f8fafc;
+        --card-light: rgba(255, 255, 255, 0.8);
+        --text-light: #1e293b;
+        --border-light: rgba(226, 232, 240, 0.8);
+        
+        --bg-dark: #0f172a;
+        --card-dark: rgba(30, 41, 59, 0.7);
+        --text-dark: #f1f5f9;
+        --border-dark: rgba(51, 65, 85, 0.5);
+        
+        --accent-save: #10b981;
+        --accent-export: #3b82f6;
+        --accent-import: #8b5cf6;
+        --accent-nav: #6366f1;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Outfit', sans-serif;
+        background: var(--bg-light);
+        color: var(--text-light);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        min-height: 100vh;
+        background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                          radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                          radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+        background-attachment: fixed;
+      }
+
+      body.dark-mode {
+        background: var(--bg-dark);
+        color: var(--text-dark);
+        background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                          radial-gradient(at 50% 0%, hsla(225,39%,10%,1) 0, transparent 50%), 
+                          radial-gradient(at 100% 0%, hsla(339,49%,10%,1) 0, transparent 50%);
+      }
+
+      /* Header / Form Section */
+      .header-container {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        padding: 0.25rem 1rem;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.98);
+        border-bottom: 1px solid var(--border-light);
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+      }
+
+      body.dark-mode .header-container {
+        background: rgba(15, 23, 42, 0.98);
+        border-bottom: 1px solid var(--border-dark);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+      }
+
+      .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.4rem;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .logo-section h2 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        background: linear-gradient(to right, #4f46e5, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+      }
+
+      .header-actions-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex: 1;
+        justify-content: flex-end;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .nav-btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+        background: white;
+        color: var(--text-light);
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      body.dark-mode .nav-btn {
+        background: #1e293b;
+        color: #f1f5f9;
+        border-color: #334155;
+      }
+
+      .nav-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+        border-color: var(--primary);
+      }
+
+      /* Form Controls */
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+        align-items: center;
+      }
+
+      input[type="text"], select {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        background: rgba(255, 255, 255, 0.9);
+        font-family: inherit;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+        width: 100%;
+      }
+
+      body.dark-mode input[type="text"], body.dark-mode select {
+        background: rgba(15, 23, 42, 0.6);
+        border-color: #334155;
+        color: white;
+      }
+
+      input:focus, select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+      }
+
+      .action-group {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .action-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+
+      .action-item span {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        color: #64748b;
+      }
+
+      body.dark-mode .action-item span { color: #94a3b8; }
+
+      .btn-icon {
+        padding: 6px;
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+        background: rgba(255, 255, 255, 0.9);
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      }
+
+      body.dark-mode .btn-icon { 
+        background: rgba(30, 41, 59, 0.8); 
+        border-color: #334155; 
+        color: #cbd5e1; 
+      }
+
+      .btn-icon:hover { 
+        background: var(--primary); 
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+      }
+
+      /* Dark Mode Toggle */
+      .theme-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--border-light);
+        padding: 4px;
+        border-radius: 20px;
+        cursor: pointer;
+        position: relative;
+        width: 60px;
+        height: 32px;
+      }
+
+      body.dark-mode .theme-toggle { background: #334155; }
+
+      .theme-ball {
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        left: 4px;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      body.dark-mode .theme-ball {
+        transform: translateX(28px);
+        background: #0f172a;
+      }
+
+      /* Categories Grid */
+      .categories {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        padding: 6px;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+      }
+
+      .category {
+        background: var(--card-light);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--border-light);
+        border-radius: 10px;
+        padding: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+        min-width: 0;
+        position: relative; /* Base for z-index */
+      }
+
+      body.dark-mode .category {
+        background: var(--card-dark);
+        border-color: var(--border-dark);
+      }
+
+      .category:hover {
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        border-color: var(--primary);
+      }
+
+      .category h3 {
+        margin: 0 0 10px 0;
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        color: var(--primary);
+        min-height: 28px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--primary);
+        letter-spacing: 0.5px;
+      }
+
+      .category h3 .menu-container {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .category ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .category li {
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        background: transparent;
+        border-bottom: 1px solid rgba(0,0,0,0.03);
+      }
+
+      body.dark-mode .category li { border-bottom-color: rgba(255,255,255,0.03); }
+
+      .category li:hover { 
+        background: rgba(79, 70, 229, 0.05); 
+        padding-left: 10px;
+      }
+
+      .category li a {
+        flex: 1;
+        text-decoration: none;
+        color: inherit;
+        font-weight: 500;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .category li .actions {
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .category li:hover .actions { opacity: 1; }
+
+      .li-btn {
+        background: transparent;
+        border: none;
+        padding: 4px;
+        cursor: pointer;
+        border-radius: 4px;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        opacity: 0.6;
+      }
+
+      .li-btn:hover { 
+        background: rgba(0,0,0,0.05); 
+        opacity: 1;
+      }
+      body.dark-mode .li-btn { color: var(--text-dark); }
+      body.dark-mode .li-btn:hover { background: rgba(255,255,255,0.1); }
+
+      /* Toast */
+      #toast {
+        position: fixed;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-100px);
+        background: #10b981;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 10001;
+        font-size: 0.85rem;
+      }
+
+      #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+      /* Deletion */
+      .delete-button {
+        transition: all 0.2s ease;
+      }
+
+      /* Menu Dropdown */
+      .menu-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        flex-shrink: 0;
+      }
+
+      .menu-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        z-index: 9999;
+        display: none;
+        min-width: 130px;
+        padding: 4px 0;
+        margin-top: 5px;
+      }
+
+      body.dark-mode .menu-dropdown {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(255,255,255,0.1);
+      }
+
+      .menu-dropdown.show { 
+        display: block; 
+        animation: menuFade 0.2s ease;
+      }
+
+      @keyframes menuFade {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .menu-item {
+        padding: 6px 12px;
+        width: 100%;
+        text-align: left;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-light);
+        transition: background 0.2s;
+        font-family: inherit;
+      }
+
+      body.dark-mode .menu-item { color: var(--text-dark); }
+
+      .menu-item:hover { background: rgba(79, 70, 229, 0.1); }
+      .menu-item i { color: var(--primary); }
+      .menu-item.delete-item { color: #ef4444; }
+      .menu-item.delete-item i { color: #ef4444; }
+
+      /* Switches */
+      .switch-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #64748b;
+      }
+
+      .sync-status {
+        font-size: 0.8rem;
+        color: #10b981;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .file-status {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: var(--text-light);
+        opacity: 0.85;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px;
+      }
+
+      body.dark-mode .file-status {
+        color: var(--text-dark);
+      }
+
+      @media (max-width: 900px) {
+        .top-bar { flex-direction: column; align-items: flex-start; }
+        .form-grid { grid-template-columns: 1fr 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header-container">
+      <div class="top-bar">
+        <div class="logo-section">
+          <h2><i data-lucide="pin"></i> My Favorite Links</h2>
+        </div>
+        
+        <div class="header-actions-wrapper">
+          <div class="nav-links">
+            <a href="save-expenses.html" target="_blank" class="nav-btn"><i data-lucide="wallet" size="14"></i> Save Expenses</a>
+            <a href="save-notes.html" target="_blank" class="nav-btn"><i data-lucide="sticky-note" size="14"></i> Save Notes</a>
+          </div>
+
+          <div style="width: 1px; height: 30px; background: var(--border-light); margin: 0 5px;"></div>
+
+          <div class="action-group">
+            <div class="action-item">
+              <button class="btn-icon" onclick="exportToJSON()" title="Export JSON"><i data-lucide="download" size="14"></i></button>
+              <span>Export</span>
+            </div>
+            <div class="action-item">
+              <button class="btn-icon" onclick="triggerImport()" title="Import JSON"><i data-lucide="upload" size="14"></i></button>
+              <span>Import</span>
+            </div>
+            <div class="action-item">
+              <button id="openFileBtn" class="btn-icon" title="Pick Sync Folder"><i data-lucide="folder-open" size="14"></i></button>
+              <span>Pick Folder</span>
+            </div>
+            <div class="action-item">
+              <button id="syncBtn" class="btn-icon" title="Sync Now"><i data-lucide="refresh-cw" size="14"></i></button>
+              <span>Sync</span>
+            </div>
+            <div id="syncStatus" class="file-status">No file connected</div>
+          </div>
+          
+          <div style="width: 1px; height: 20px; background: var(--border-light); margin: 0 5px;"></div>
+          
+          <div class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark/Light Mode">
+            <div class="theme-ball" id="themeBall">🌙</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <select id="category-select">
+          <option value="">🔁 Select category</option>
+        </select>
+        <input type="text" id="category-name" placeholder="New Category Name" />
+        <input type="text" id="link-name" placeholder="Link Title" />
+        <input type="text" id="link-url" placeholder="URL (https://...)" />
+        
+        <button class="btn-primary" onclick="addNewLink()" style="padding: 8px 16px; font-size: 0.85rem;">
+          <i data-lucide="plus-circle" size="16"></i> Save Link
+        </button>
+      </div>
+    </header>
+
+    <input type="file" id="importFile" style="display:none" onchange="importFromJSON()" />
+
+    <div class="categories"></div>
+    <div id="toast"></div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        initFileHandle();
+        loadLinks();
+        if (window.lucide) lucide.createIcons();
+
+        // Handle category input locking
+        const categorySelect = document.getElementById("category-select");
+        const categoryNameInput = document.getElementById("category-name");
+        
+        categorySelect.addEventListener("change", function() {
+          const val = this.value;
+          if (val) {
+            categoryNameInput.disabled = true;
+            categoryNameInput.placeholder = "Category Already Selected";
+            categoryNameInput.value = "";
+            categoryNameInput.style.opacity = "0.6";
+          } else {
+            categoryNameInput.disabled = false;
+            categoryNameInput.placeholder = "New Category Name";
+            categoryNameInput.style.opacity = "1";
+          }
+          loadLinks(val);
+        });
+
+        // Close menus on click outside
+        document.addEventListener('click', () => {
+          document.querySelectorAll('.menu-dropdown').forEach(m => m.classList.remove('show'));
+        });
+      });
+
+      let deletedBackup = null;
+      let dragged = { category: null, index: null };
+
+      // ── File System Access (IndexedDB-persisted handle - Upgraded to Auto-Create inside Folder!) ──────────────
+      let fileHandle = null;
+      const _IDB = { name:'myLinksFileDB', store:'handles', key:'linksHandle' };
+
+      function _openIDB() {
+        return new Promise((res,rej) => {
+          const r = indexedDB.open(_IDB.name, 1);
+          r.onupgradeneeded = e => e.target.result.createObjectStore(_IDB.store);
+          r.onsuccess = e => res(e.target.result);
+          r.onerror   = e => rej(e.target.error);
+        });
+      }
+      async function _getHandle() {
+        try { const db = await _openIDB(); return new Promise(r => { const q = db.transaction(_IDB.store,'readonly').objectStore(_IDB.store).get(_IDB.key); q.onsuccess = e => r(e.target.result||null); q.onerror = ()=>r(null); }); } catch { return null; }
+      }
+      async function _putHandle(h) {
+        try { const db = await _openIDB(); return new Promise(r => { const tx = db.transaction(_IDB.store,'readwrite'); tx.objectStore(_IDB.store).put(h,_IDB.key); tx.oncomplete=r; tx.onerror=r; }); } catch {}
+      }
+
+      function updateFileStatus() {
+        const elSync = document.getElementById('syncStatus');
+        if (fileHandle) {
+          const label = '📄 ' + fileHandle.name;
+          if (elSync) { elSync.textContent = label; elSync.style.color = '#10b981'; elSync.title = fileHandle.name; }
+        } else {
+          if (elSync) { elSync.textContent = 'No file connected'; elSync.style.color = '#666'; elSync.title = 'No file connected'; }
+        }
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2000);
+      }
+
+      async function syncLinksToFile() {
+        if (!fileHandle) return;
+        try {
+          let p = await fileHandle.queryPermission({mode:'readwrite'});
+          if (p!=='granted') p = await fileHandle.requestPermission({mode:'readwrite'});
+          if (p!=='granted') return;
+          const data = localStorage.getItem("customCategories") || "{}";
+          const w = await fileHandle.createWritable();
+          await w.write(data);
+          await w.close();
+          updateFileStatus();
+          showToast("✓ Synced to file");
+        } catch(e) { console.warn('Sync failed', e); }
+      }
+
+      async function openLinksFile() {
+        if (!window.showDirectoryPicker) { alert('Directory Picker is not supported in this browser.'); return; }
+        try {
+          const dirHandle = await window.showDirectoryPicker();
+          
+          if (await dirHandle.requestPermission({mode:'readwrite'}) !== 'granted') {
+            showToast('Permission denied'); return;
+          }
+
+          // Auto-get or Auto-create saved_links.json inside the picked directory!
+          const h = await dirHandle.getFileHandle('saved_links.json', { create: true });
+          fileHandle = h;
+          await _putHandle(h);
+
+          const file = await h.getFile();
+          const txt = await file.text();
+          if (txt && txt.trim()) {
+            try {
+              const p = JSON.parse(txt);
+              const isLocalEmpty = Object.keys(JSON.parse(localStorage.getItem("customCategories") || "{}")).length === 0;
+              if (isLocalEmpty || confirm(`Load links from "${h.name}"?`)) {
+                localStorage.setItem("customCategories", JSON.stringify(p));
+                loadLinks();
+                showToast('✓ Links loaded');
+              }
+            } catch(e) { console.warn("Existing file was not valid JSON or empty."); }
+          } else {
+            // New empty file, sync current links to it immediately
+            await syncLinksToFile();
+          }
+          
+          updateFileStatus();
+        } catch(e) {
+          if (e.name !== 'AbortError') {
+            console.error(e);
+            showToast('Sync folder selection failed');
+          }
+        }
+      }
+
+      async function initFileHandle() {
+        const h = await _getHandle();
+        if (h) { 
+          fileHandle=h; 
+          updateFileStatus();
+          try {
+            const isLocalEmpty = Object.keys(JSON.parse(localStorage.getItem("customCategories") || "{}")).length === 0;
+            // Attempt silent restore if permission is already granted and app is empty
+            if (isLocalEmpty && (await h.queryPermission({mode:'readwrite'})) === 'granted') {
+              const txt = await (await h.getFile()).text();
+              const p = JSON.parse(txt);
+              if (p) {
+                localStorage.setItem("customCategories", JSON.stringify(p));
+                loadLinks();
+                showToast('✓ Restored from file');
+              }
+            }
+          } catch(e) {}
+        }
+        document.getElementById('openFileBtn').onclick = openLinksFile;
+        document.getElementById('syncBtn').onclick = syncLinksToFile;
+      }
+      // ─────────────────────────────────────────────────────────────────
+
+      function loadLinks(filterCategory = null) {
+        if (!localStorage.getItem("customCategories")) {
+          const defaultCategories = {};
+          localStorage.setItem("customCategories", JSON.stringify(defaultCategories));
+        }
+
+        const customCategories = JSON.parse(localStorage.getItem("customCategories")) || {};
+        const linksContainer = document.querySelector(".categories");
+        const categorySelect = document.getElementById("category-select");
+
+        linksContainer.innerHTML = "";
+        const currentValue = categorySelect.value;
+        categorySelect.innerHTML = '<option value="">🔁 Select category</option>';
+
+        for (const category of Object.keys(customCategories)) {
+          const option = document.createElement("option");
+          option.value = category;
+          option.textContent = category;
+          categorySelect.appendChild(option);
+        }
+
+        categorySelect.value = currentValue;
+
+        for (const [category, links] of Object.entries(customCategories)) {
+          if (filterCategory && category !== filterCategory) continue;
+
+          const categoryDiv = document.createElement("div");
+          categoryDiv.className = "category";
+          categoryDiv.dataset.category = category;
+
+          const h3 = document.createElement("h3");
+          const titleSpan = document.createElement("span");
+          titleSpan.textContent = category;
+
+          const menuContainer = document.createElement("div");
+          menuContainer.className = "menu-container";
+
+          const menuBtn = document.createElement("button");
+          menuBtn.className = "li-btn";
+          menuBtn.innerHTML = '<i data-lucide="more-vertical" size="14"></i>';
+          menuBtn.onclick = (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.menu-dropdown').forEach(m => {
+              if (m !== dropdown) m.classList.remove('show');
+            });
+            document.querySelectorAll('.category').forEach(c => c.style.zIndex = "1");
+            
+            const isShowing = dropdown.classList.toggle('show');
+            if (isShowing) {
+              categoryDiv.style.zIndex = "100";
+            }
+          };
+
+          const dropdown = document.createElement("div");
+          dropdown.className = "menu-dropdown";
+
+          const editBtn = document.createElement("button");
+          editBtn.className = "menu-item";
+          editBtn.innerHTML = '<i data-lucide="edit-2" size="12"></i> Edit';
+          editBtn.onclick = () => {
+            const newName = prompt("Edit category name:", category);
+            if (newName && newName !== category) {
+              const all = JSON.parse(localStorage.getItem("customCategories")) || {};
+              if (all[newName]) return alert("Category already exists.");
+              all[newName] = all[category];
+              delete all[category];
+              localStorage.setItem("customCategories", JSON.stringify(all));
+              syncLinksToFile();
+              loadLinks(document.getElementById("category-select").value || null);
+            }
+          };
+
+          const delBtn = document.createElement("button");
+          delBtn.className = "menu-item delete-item";
+          delBtn.innerHTML = '<i data-lucide="trash-2" size="12"></i> Delete';
+          delBtn.onclick = () => deleteCategory(category);
+
+          dropdown.appendChild(editBtn);
+          dropdown.appendChild(delBtn);
+          
+          menuContainer.appendChild(menuBtn);
+          menuContainer.appendChild(dropdown);
+
+          h3.appendChild(titleSpan);
+          h3.appendChild(menuContainer);
+
+          const ul = document.createElement("ul");
+          ul.dataset.category = category;
+          // Make the UL a drop target for drag and drop
+          ul.addEventListener("dragover", handleDragOver);
+          ul.addEventListener("drop", (e) => handleDrop(e, category));
+
+          links.forEach((link, index) => {
+            const li = document.createElement("li");
+            li.draggable = true;
+            li.dataset.category = category;
+            li.dataset.index = index;
+
+            li.addEventListener("dragstart", (e) => handleDragStart(e, category, index));
+            li.addEventListener("dragend", handleDragEnd);
+            li.addEventListener("dragover", (e) => handleDragOverItem(e, li));
+            li.addEventListener("dragleave", handleDragLeaveItem);
+
+            const a = document.createElement("a");
+            a.href = link.url;
+            a.target = "_blank";
+            a.textContent = link.name;
+            a.draggable = false; // prevent anchor interfering with dragstart
+
+            const menuContainer = document.createElement("div");
+            menuContainer.className = "menu-container";
+
+            const menuBtn = document.createElement("button");
+            menuBtn.className = "li-btn";
+            menuBtn.innerHTML = '<i data-lucide="more-vertical" size="14"></i>';
+            menuBtn.onclick = (e) => {
+              e.stopPropagation();
+              // Close all other menus and reset their z-indexes
+              document.querySelectorAll('.menu-dropdown').forEach(m => {
+                if (m !== dropdown) m.classList.remove('show');
+              });
+              document.querySelectorAll('.category').forEach(c => c.style.zIndex = "1");
+              
+              const isShowing = dropdown.classList.toggle('show');
+              if (isShowing) {
+                const catCard = menuBtn.closest('.category');
+                if (catCard) catCard.style.zIndex = "100";
+              }
+            };
+
+            const dropdown = document.createElement("div");
+            dropdown.className = "menu-dropdown";
+            
+            const viewBtn = document.createElement("button");
+            viewBtn.className = "menu-item";
+            viewBtn.innerHTML = '<i data-lucide="eye" size="12"></i> View';
+            viewBtn.onclick = () => {
+              if (confirm(`Link URL:\n${link.url}\n\nCopy to clipboard?`)) {
+                navigator.clipboard.writeText(link.url).then(() => {
+                  showToast("Link copied to clipboard!");
+                });
+              }
+            };
+
+            const editBtn = document.createElement("button");
+            editBtn.className = "menu-item";
+            editBtn.innerHTML = '<i data-lucide="edit-3" size="12"></i> Edit';
+            editBtn.onclick = () => editLink(category, index);
+
+            const delBtn = document.createElement("button");
+            delBtn.className = "menu-item delete-item delete-button";
+            delBtn.innerHTML = '<i data-lucide="trash-2" size="12"></i> Delete';
+            delBtn.onclick = () => deleteLink(category, index);
+
+            dropdown.appendChild(viewBtn);
+            dropdown.appendChild(editBtn);
+            dropdown.appendChild(delBtn);
+            
+            menuContainer.appendChild(menuBtn);
+            menuContainer.appendChild(dropdown);
+
+            li.appendChild(a);
+            li.appendChild(menuContainer);
+            ul.appendChild(li);
+          });
+
+          categoryDiv.appendChild(h3);
+          categoryDiv.appendChild(ul);
+          linksContainer.appendChild(categoryDiv);
+        }
+
+        if (window.lucide) {
+          setTimeout(() => lucide.createIcons(), 10);
+        }
+      }
+
+      function handleDragStart(e, category, index) {
+        dragged.category = category;
+        dragged.index = index;
+        e.dataTransfer.effectAllowed = "move";
+        // Set dummy data to enable dragging in Firefox
+        e.dataTransfer.setData("text/plain", "");
+        e.currentTarget.classList.add("dragging");
+      }
+
+      function handleDragEnd(e) {
+        document.querySelectorAll("li.drag-over").forEach(el => el.classList.remove("drag-over"));
+        e.currentTarget.classList.remove("dragging");
+        dragged = { category: null, index: null };
+      }
+
+      function handleDragOver(e) {
+        e.preventDefault(); // Necessary to allow drop
+        e.dataTransfer.dropEffect = "move";
+      }
+
+      function handleDragOverItem(e, li) {
+        e.preventDefault();
+        if (li.classList.contains("drag-over")) return;
+        // Remove previous highlights
+        document.querySelectorAll("li.drag-over").forEach(el => el.classList.remove("drag-over"));
+        li.classList.add("drag-over");
+      }
+
+      function handleDragLeaveItem(e) {
+        e.currentTarget.classList.remove("drag-over");
+      }
+
+      function handleDrop(e, targetCategory) {
+        e.preventDefault();
+        document.querySelectorAll("li.drag-over").forEach(el => el.classList.remove("drag-over"));
+
+        if (dragged.category === null || dragged.index === null) return;
+
+        const customCategories = JSON.parse(localStorage.getItem("customCategories")) || {};
+        const draggedLink = customCategories[dragged.category][dragged.index];
+
+        if (!draggedLink) return;
+
+        // Find insertion index within targetCategory
+        const ul = e.currentTarget;
+        const children = Array.from(ul.querySelectorAll("li"));
+
+        // Find closest insertion index based on drop position
+        let insertIndex = children.length; // default append at end
+        // Get mouse Y relative to UL
+        const mouseY = e.clientY;
+
+        for (let i = 0; i < children.length; i++) {
+          const child = children[i];
+          const rect = child.getBoundingClientRect();
+          if (mouseY < rect.top + rect.height / 2) {
+            insertIndex = i;
+            break;
+          }
+        }
+
+        // Remove dragged link from original category
+        customCategories[dragged.category].splice(dragged.index, 1);
+        if (customCategories[dragged.category].length === 0) {
+          delete customCategories[dragged.category];
+        }
+
+        // If dropping in the same category and insert index is after original index, adjust insertIndex
+        if (dragged.category === targetCategory && insertIndex > dragged.index) {
+          insertIndex--;
+        }
+
+        // Create array if targetCategory doesn't exist
+        if (!customCategories[targetCategory]) {
+          customCategories[targetCategory] = [];
+        }
+
+        // Insert dragged link at the new position in targetCategory
+        customCategories[targetCategory].splice(insertIndex, 0, draggedLink);
+
+        localStorage.setItem("customCategories", JSON.stringify(customCategories));
+        localStorage.setItem("backup_customCategories", JSON.stringify(customCategories));
+        syncLinksToFile();
+        loadLinks(document.getElementById("category-select").value || null);
+      }
+
+      // Existing functions unchanged except loadLinks now attaches drag handlers
+
+      function addNewLink() {
+        const selectedCategory = document.getElementById("category-select").value;
+        const newCategoryName = document.getElementById("category-name").value.trim();
+        const linkName = document.getElementById("link-name").value.trim();
+        const linkURL = document.getElementById("link-url").value.trim();
+
+        if (!linkName || !linkURL || (!selectedCategory && !newCategoryName)) {
+          alert("Please fill in all fields.");
+          return;
+        }
+
+        const categoryName = selectedCategory || newCategoryName;
+        const customCategories = JSON.parse(localStorage.getItem("customCategories")) || {};
+        if (!customCategories[categoryName]) customCategories[categoryName] = [];
+
+        customCategories[categoryName].push({ name: linkName, url: linkURL });
+        localStorage.setItem("customCategories", JSON.stringify(customCategories));
+        localStorage.setItem("backup_customCategories", JSON.stringify(customCategories));
+
+        document.getElementById("category-name").value = "";
+        document.getElementById("link-name").value = "";
+        document.getElementById("link-url").value = "";
+        document.getElementById("category-select").value = "";
+
+        loadLinks();
+        syncLinksToFile();
+      }
+function triggerImport() {
+  document.getElementById("importFile").click();
+}
+      function deleteLink(category, index) {
+        const customCategories = JSON.parse(localStorage.getItem("customCategories")) || {};
+        const linkName = customCategories[category][index].name;
+        
+        if (!confirm(`Are you sure you want to delete "${linkName}"?`)) return;
+
+        deletedBackup = {
+          category,
+          link: customCategories[category][index],
+          index,
+        };
+        customCategories[category].splice(index, 1);
+        if (customCategories[category].length === 0) delete customCategories[category];
+        localStorage.setItem("customCategories", JSON.stringify(customCategories));
+        localStorage.setItem("backup_customCategories", JSON.stringify(customCategories));
+        loadLinks();
+        syncLinksToFile();
+      }
+
+      function deleteCategory(category) {
+        if (!confirm(`Are you sure you want to delete the entire category "${category}" and ALL its links?`)) return;
+        const all = JSON.parse(localStorage.getItem("customCategories")) || {};
+        delete all[category];
+        localStorage.setItem("customCategories", JSON.stringify(all));
+        syncLinksToFile();
+        loadLinks();
+        showToast(`Category "${category}" deleted`);
+      }
+
+      function undoDelete() {
+        if (!deletedBackup) return alert("Nothing to undo");
+        const customCategories = JSON.parse(localStorage.getItem("customCategories")) || {};
+        const { category, link, index } = deletedBackup;
+        if (!customCategories[category]) customCategories[category] = [];
+        customCategories[category].splice(index, 0, link);
+        deletedBackup = null;
+        localStorage.setItem("customCategories", JSON.stringify(customCategories));
+        loadLinks();
+        syncLinksToFile();
+      }
+
+      function editLink(category, index) {
+        const customCategories = JSON.parse(localStorage.getItem("customCategories")) || {};
+        const link = customCategories[category][index];
+        const newName = prompt("Edit Link Name:", link.name);
+        const newURL = prompt("Edit Link URL:", link.url);
+        const newCategory = prompt("Edit Category:", category);
+
+        if (newName && newURL && newCategory) {
+          if (newCategory !== category) {
+            if (!customCategories[newCategory]) customCategories[newCategory] = [];
+            customCategories[newCategory].push({ name: newName, url: newURL });
+            customCategories[category].splice(index, 1);
+            if (customCategories[category].length === 0) delete customCategories[category];
+          } else {
+            customCategories[category][index] = { name: newName, url: newURL };
+          }
+
+          localStorage.setItem("customCategories", JSON.stringify(customCategories));
+          loadLinks();
+          syncLinksToFile();
+        }
+      }
+
+      function exportToJSON() {
+  const data = localStorage.getItem("customCategories");
+  if (!data) return alert("No data found to export.");
+  const blob = new Blob([data], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "my_links.json";
+  link.click();
+}
+
+
+      function importFromJSON() {
+        const fileInput = document.getElementById("importFile");
+        const file = fileInput.files[0];
+        if (!file) return alert("Please choose a file.");
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const data = JSON.parse(e.target.result);
+            localStorage.setItem("customCategories", JSON.stringify(data));
+            loadLinks();
+          } catch (err) {
+            alert("Invalid JSON format.");
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+        const ball = document.getElementById("themeBall");
+        ball.textContent = isDark ? "☀️" : "🌙";
+        setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 10);
+      }
+
+      function updateSwitchBall(input) {
+        const ball = document.getElementById("deleteBall");
+        if (input.checked) {
+          ball.style.transform = "translateX(18px)";
+          ball.style.background = "#ef4444";
+        } else {
+          ball.style.transform = "translateX(0)";
+          ball.style.background = "white";
+        }
+      }
+
+      // Wrap loadLinks to ensure icons refresh
+      const originalLoadLinks = loadLinks;
+      loadLinks = function(filterCategory = null) {
+        originalLoadLinks(filterCategory);
+        setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 10);
+      };
+
+      document.addEventListener("keydown", function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+          e.preventDefault();
+          showToast("Saving page is disabled 🚫");
+        }
+      });
+    </script>
+  </body>
+</html>

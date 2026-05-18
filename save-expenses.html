@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cash Book - Single File Auto Save</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f5f7fa;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        -webkit-user-select: none;
+      }
+      header {
+        background-color: #0078d4;
+        color: white;
+        text-align: center;
+        padding: 12px 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+      #calcBtn {
+        position: absolute;
+        right: 15px;
+        top: 8px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.6rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #calcBtn svg {
+        width: 24px;
+        height: 24px;
+        stroke-width: 2.5;
+      }
+      #calcBtn:hover {
+        transform: scale(1.1);
+      }
+      .container {
+        max-width: 800px;
+        margin: 30px auto;
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+      input,
+      select,
+      button {
+        font-size: 1rem;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      button {
+        background-color: #0078d4;
+        color: white;
+        cursor: pointer;
+        border: none;
+        transition: 0.3s;
+      }
+      button:hover {
+        background-color: #005ea6;
+      }
+      .small-btn {
+        width: 35px;
+        font-weight: bold;
+        padding: 8px 0;
+        text-align: center;
+      }
+      .save-btn {
+        background-color: #28a745 !important;
+        font-size: 0.9rem;
+        padding: 10px 15px;
+      }
+      .save-btn:hover {
+        background-color: #218838 !important;
+      }
+      .folder-btn {
+        background-color: #17a2b8 !important;
+        font-size: 0.9rem;
+        padding: 10px 15px;
+      }
+      .folder-btn:hover {
+        background-color: #138496 !important;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+      }
+      th {
+        background-color: #0078d4;
+        color: white;
+      }
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      /* DRAG & DROP STYLES */
+      tr.drag-over {
+        background-color: #e3f2fd !important;
+        border: 2px dashed #0078d4;
+      }
+      tr.dragging {
+        opacity: 0.5;
+        transform: rotate(5deg);
+        z-index: 1000;
+      }
+      tr.drag-grab {
+        cursor: grab;
+      }
+      tr.drag-grab:active {
+        cursor: grabbing;
+      }
+      .drag-handle {
+        cursor: grab;
+        padding: 4px;
+        font-size: 1.1em;
+      }
+      .drag-handle:active {
+        cursor: grabbing;
+      }
+      .filter-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .total {
+        font-weight: bold;
+        text-align: right;
+        margin-top: 10px;
+        font-size: 1.1rem;
+      }
+      .category-inline {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+      .cash-in {
+        color: green;
+        font-weight: bold;
+      }
+      .cash-out {
+        color: red;
+        font-weight: bold;
+      }
+      .status {
+        font-size: 0.9rem;
+        margin: 10px 0;
+        padding: 8px;
+        border-radius: 4px;
+        background: #e7f3ff;
+        border-left: 4px solid #0078d4;
+      }
+      .status.success {
+        background: #d4edda;
+        border-left-color: #28a745;
+      }
+      .status.error {
+        background: #f8d7da;
+        border-left-color: #dc3545;
+      }
+      #calculatorPopup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        padding: 8px 12px 12px 12px;
+        z-index: 2000;
+        width: 220px;
+        max-height: 60vh;
+        overflow: auto;
+        transition: transform 0.12s ease, opacity 0.12s ease;
+        opacity: 0;
+        transform: translateY(-6px) scale(0.99);
+        pointer-events: none;
+        touch-action: none;
+      }
+      #calculatorPopup.open {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+      #calcHandle {
+        height: 12px;
+        width: 36px;
+        margin: 6px auto 8px auto;
+        border-radius: 6px;
+        background: linear-gradient(180deg, #eee, #ddd);
+        cursor: move;
+        box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.6);
+      }
+      #calcHandle:active {
+        transform: scale(0.995);
+      }
+      #calcDisplay {
+        width: 100%;
+        height: 40px;
+        font-size: 1.2rem;
+        text-align: right;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 5px;
+      }
+      .calc-btn {
+        font-size: 1rem;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: #ffffff;
+        color: black;
+        cursor: pointer;
+        transition: 0.2s;
+        font-weight: 500;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .calc-btn:hover {
+        background: #0078d4;
+        color: white;
+      }
+      @media (max-width: 360px) {
+        #calculatorPopup {
+          left: 8px !important;
+          right: 8px !important;
+          width: calc(100% - 16px);
+        }
+        #calcHandle {
+          margin: 6px 0 8px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      My Data - ✅ SINGLE FILE Auto Save
+      <button id="calcBtn" title="Open Calculator">
+        <i data-lucide="calculator"></i>
+      </button>
+    </header>
+
+    <div class="container">
+      <div class="status" id="statusMsg">
+        Ready - Updates SINGLE cashbook.json file
+      </div>
+
+      <div class="filter-row">
+        <div class="category-inline">
+          <label>Category: </label>
+          <select id="filterCategory"></select>
+          <button class="small-btn" onclick="quickAddCategory()">+</button>
+          <button class="small-btn" onclick="editCategory()">✎</button>
+          <button class="small-btn" onclick="deleteCategory()">🗑</button>
+
+          <button
+            class="save-btn"
+            onclick="autoSaveNow()"
+            title="Save to cashbook_backup.json (always same file)"
+          >
+            💾 Backup
+          </button>
+          <button
+            class="folder-btn"
+            onclick="pickSaveFolder()"
+            title="Pick Folder (SINGLE cashbook.json file)"
+          >
+            📁 Folder
+          </button>
+
+          <label
+            for="importFiles"
+            style="
+              background: #fff;
+              color: #0078d4;
+              border: 1px solid #0078d4;
+              padding: 6px 8px;
+              border-radius: 6px;
+              cursor: pointer;
+              margin-left: 6px;
+            "
+            >Import</label
+          >
+          <input
+            id="importFiles"
+            type="file"
+            accept="application/json"
+            multiple
+            style="display: none"
+          />
+        </div>
+        <div class="total">Total: ₹<span id="totalAmount">0</span></div>
+      </div>
+
+      <h3>Add Transaction</h3>
+      <div class="row">
+        <input type="date" id="date" />
+        <input type="text" id="note" placeholder="Note" />
+        <select id="type">
+          <option value="in">Cash In</option>
+          <option value="out">Cash Out</option>
+          <option value="na">NA</option>
+        </select>
+        <input
+          type="text"
+          id="amount"
+          placeholder="Amount"
+          inputmode="numeric"
+        />
+        <button onclick="addExpense()" id="addBtn">Add</button>
+      </div>
+
+      <h3>Transactions</h3>
+      <table id="expenseTableContainer">
+        <thead>
+          <tr>
+            <th>Drag</th>
+            <th>Note</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="expenseTable"></tbody>
+      </table>
+    </div>
+
+    <div id="calculatorPopup" role="dialog" aria-hidden="true">
+      <div id="calcHandle" title="Drag to move"></div>
+      <input type="text" id="calcDisplay" readonly />
+      <div
+        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px"
+      >
+        <button class="calc-btn">7</button>
+        <button class="calc-btn">8</button>
+        <button class="calc-btn">9</button>
+        <button class="calc-btn">/</button>
+        <button class="calc-btn">4</button>
+        <button class="calc-btn">5</button>
+        <button class="calc-btn">6</button>
+        <button class="calc-btn">*</button>
+        <button class="calc-btn">1</button>
+        <button class="calc-btn">2</button>
+        <button class="calc-btn">3</button>
+        <button class="calc-btn">-</button>
+        <button class="calc-btn">0</button>
+        <button class="calc-btn">.</button>
+        <button id="calcBack" class="calc-btn">⌫</button>
+        <button class="calc-btn">+</button>
+        <button id="calcClear" class="calc-btn" style="grid-column: span 2">
+          C
+        </button>
+        <button
+          id="calcEquals"
+          class="calc-btn"
+          style="grid-column: span 2; background: #0078d4; color: white"
+        >
+          =
+        </button>
+      </div>
+    </div>
+
+    <script>
+      lucide.createIcons();
+
+      /* ---------------- Core Data & SINGLE FILE HANDLE ---------------- */
+      let categories = JSON.parse(localStorage.getItem("categories")) || [
+        "Uncategorized",
+      ];
+      let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+      let editIndex = null;
+      let saveDirHandle = null;
+      let cashbookFileHandle = null;
+      let statusMsg = document.getElementById("statusMsg");
+
+      const filterCategory = document.getElementById("filterCategory");
+      const expenseTable = document.getElementById("expenseTable");
+      const totalAmountEl = document.getElementById("totalAmount");
+      const dateInput = document.getElementById("date");
+      const amountInput = document.getElementById("amount");
+      const typeInput = document.getElementById("type");
+      const noteInput = document.getElementById("note");
+      const addBtn = document.getElementById("addBtn");
+
+      /* ---------------- CLEAN CATEGORIES FUNCTION ---------------- */
+      function cleanEmptyCategories() {
+        const usedCategories = [
+          ...new Set(expenses.map((e) => e.category).filter(Boolean)),
+        ];
+        categories = [
+          "Uncategorized",
+          ...usedCategories.filter((c) => c !== "Uncategorized"),
+        ];
+        localStorage.setItem("categories", JSON.stringify(categories));
+      }
+
+      /* ---------------- DRAG & DROP FUNCTIONALITY ---------------- */
+      let draggedRow = null;
+      let draggedIndex = null;
+
+      function initDragDrop() {
+        expenseTable.addEventListener("dragstart", handleDragStart);
+        expenseTable.addEventListener("dragend", handleDragEnd);
+        expenseTable.addEventListener("dragover", handleDragOver);
+        expenseTable.addEventListener("drop", handleDrop);
+        expenseTable.addEventListener("dragleave", handleDragLeave);
+      }
+
+      function handleDragStart(e) {
+        if (e.target.closest("tr")) {
+          draggedRow = e.target.closest("tr");
+          draggedIndex = parseInt(draggedRow.dataset.index);
+          draggedRow.classList.add("dragging");
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/html", e.target.outerHTML);
+        }
+      }
+
+      function handleDragEnd(e) {
+        if (draggedRow) {
+          draggedRow.classList.remove("dragging");
+          Array.from(expenseTable.children).forEach((row) => {
+            row.classList.remove("drag-over");
+          });
+          draggedRow = null;
+          draggedIndex = null;
+        }
+      }
+
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        const row = e.target.closest("tr");
+        if (row && row !== draggedRow && row.parentNode === expenseTable) {
+          row.classList.add("drag-over");
+        }
+      }
+
+      function handleDragLeave(e) {
+        const row = e.target.closest("tr");
+        if (row) {
+          row.classList.remove("drag-over");
+        }
+      }
+
+      async function handleDrop(e) {
+        e.preventDefault();
+        const dropRow = e.target.closest("tr");
+        if (
+          !dropRow ||
+          dropRow === draggedRow ||
+          dropRow.parentNode !== expenseTable
+        ) {
+          return;
+        }
+
+        const dropIndex = parseInt(dropRow.dataset.index);
+
+        const selectedCat = filterCategory.value;
+        let filtered =
+          selectedCat === "all"
+            ? expenses
+            : expenses.filter((e) => e.category === selectedCat);
+
+        const draggedExpense = filtered[draggedIndex];
+        filtered.splice(draggedIndex, 1);
+        filtered.splice(
+          dropIndex > draggedIndex ? dropIndex - 1 : dropIndex,
+          0,
+          draggedExpense
+        );
+
+        if (selectedCat !== "all") {
+          expenses = expenses.filter((e) => e.category !== selectedCat);
+          expenses.push(...filtered);
+        } else {
+          expenses = filtered;
+        }
+
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+        renderExpenses();
+        await updateCashbookFile();
+        showStatus("✅ Reordered & saved to cashbook.json", "success");
+      }
+
+      /* ---------------- SINGLE FILE SAVE ---------------- */
+      async function updateCashbookFile() {
+        if (!saveDirHandle || !cashbookFileHandle) return;
+
+        cleanEmptyCategories();
+
+        try {
+          const data = {
+            categories,
+            expenses,
+            lastUpdated: new Date().toISOString(),
+            totalExpenses: expenses.length,
+            totalBalance: expenses.reduce(
+              (sum, e) =>
+                e.type === "in"
+                  ? sum + e.amount
+                  : e.type === "out"
+                  ? sum - e.amount
+                  : sum,
+              0
+            ),
+          };
+
+          const writable = await cashbookFileHandle.createWritable({
+            keepExistingData: false,
+          });
+          await writable.write(JSON.stringify(data, null, 2));
+          await writable.close();
+          showStatus(
+            "✅ cashbook.json UPDATED (categories cleaned)",
+            "success"
+          );
+        } catch (err) {
+          showStatus("❌ File update failed", "error");
+          console.error("File save error:", err);
+        }
+      }
+
+      /* ---------------- Utility Functions ---------------- */
+      function formatNumber(num) {
+        return num % 1 === 0
+          ? num.toLocaleString("en-IN", { maximumFractionDigits: 0 })
+          : num.toLocaleString("en-IN", { maximumFractionDigits: 2 });
+      }
+
+      function formatInputWithCommas(value) {
+        const clean = value.replace(/,/g, "").replace(/[^\d.]/g, "");
+        if (clean === "") return "";
+        const parts = clean.split(".");
+        parts[0] = Number(parts[0]).toLocaleString("en-IN");
+        return parts.join(".");
+      }
+
+      function showStatus(msg, type = "info") {
+        statusMsg.textContent = msg;
+        statusMsg.className = `status ${type}`;
+      }
+
+      /* ---------------- File Operations ---------------- */
+      function downloadBlob(filename, content) {
+        const blob = new Blob([content], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      async function saveWithPicker(filename, data) {
+        if (!("showSaveFilePicker" in window)) {
+          downloadBlob(filename, JSON.stringify(data, null, 2));
+          return;
+        }
+        try {
+          const options = {
+            suggestedName: filename,
+            types: [
+              {
+                description: "JSON Files",
+                accept: { "application/json": [".json"] },
+              },
+            ],
+          };
+          const handle = await window.showSaveFilePicker(options);
+          const writable = await handle.createWritable();
+          await writable.write(JSON.stringify(data, null, 2));
+          await writable.close();
+          showStatus("💾 Backup saved!", "success");
+        } catch (err) {
+          if (err.name !== "AbortError") {
+            downloadBlob(filename, JSON.stringify(data, null, 2));
+          }
+        }
+      }
+
+      async function pickSaveFolder() {
+        if (!("showDirectoryPicker" in window)) {
+          showStatus("❌ Folder picker not supported", "error");
+          return;
+        }
+        try {
+          saveDirHandle = await window.showDirectoryPicker();
+          cashbookFileHandle = await saveDirHandle.getFileHandle(
+            "cashbook.json",
+            { create: true }
+          );
+          showStatus(
+            "✅ Folder selected! Using SINGLE cashbook.json",
+            "success"
+          );
+          await updateCashbookFile();
+        } catch (err) {
+          if (err.name !== "AbortError") {
+            showStatus("Folder selection cancelled", "info");
+          }
+        }
+      }
+
+      /* ✅ FIXED: Always same backup file name */
+      async function autoSaveNow() {
+        cleanEmptyCategories();
+        const data = {
+          meta: { exportedAt: new Date().toISOString() },
+          categories,
+          expenses,
+        };
+        const filename = "cashbook_backup.json"; // ✅ ALWAYS SAME FILE
+        await saveWithPicker(filename, data);
+        showStatus("✅ Saved to cashbook_backup.json", "success");
+      }
+
+      /* ---------------- Core Functions ---------------- */
+      function init() {
+        const today = new Date().toISOString().split("T")[0];
+        dateInput.value = today;
+        cleanEmptyCategories();
+        updateCategoryDropdown();
+        const lastCategory = localStorage.getItem("lastCategory");
+        if (lastCategory && categories.includes(lastCategory)) {
+          filterCategory.value = lastCategory;
+        }
+        renderExpenses();
+        initDragDrop();
+        showStatus(
+          "🚀 Ready - Drag rows to reorder - Pick 📁 Folder for SINGLE FILE auto-save",
+          "info"
+        );
+      }
+
+      function updateCategoryDropdown() {
+        filterCategory.innerHTML =
+          '<option value="all">All Categories</option>';
+        categories.forEach((cat) => {
+          const opt = document.createElement("option");
+          opt.value = cat;
+          opt.textContent = cat;
+          filterCategory.appendChild(opt);
+        });
+      }
+
+      async function quickAddCategory() {
+        const name = prompt("Enter new category name:");
+        if (name && !categories.includes(name.trim())) {
+          categories.push(name.trim());
+          localStorage.setItem("categories", JSON.stringify(categories));
+          updateCategoryDropdown();
+          await updateCashbookFile();
+          showStatus("✅ Category added to cashbook.json", "success");
+        } else if (name?.trim() && categories.includes(name.trim())) {
+          alert("Category already exists!");
+        }
+      }
+
+      async function editCategory() {
+        const oldCat = filterCategory.value;
+        if (oldCat === "all") return alert("Select specific category");
+        const newCat = prompt("New category name:", oldCat);
+        if (newCat && newCat.trim() !== oldCat) {
+          const index = categories.indexOf(oldCat);
+          categories[index] = newCat.trim();
+          expenses.forEach((e) => {
+            if (e.category === oldCat) e.category = newCat.trim();
+          });
+          localStorage.setItem("categories", JSON.stringify(categories));
+          localStorage.setItem("expenses", JSON.stringify(expenses));
+          updateCategoryDropdown();
+          filterCategory.value = newCat.trim();
+          renderExpenses();
+          await updateCashbookFile();
+          showStatus("✅ Category updated in cashbook.json", "success");
+        }
+      }
+
+      async function deleteCategory() {
+        const cat = filterCategory.value;
+        if (cat === "all") return alert("Select specific category");
+        if (confirm(`Delete "${cat}" and all transactions?`)) {
+          categories = categories.filter((c) => c !== cat);
+          expenses = expenses.filter((e) => e.category !== cat);
+          localStorage.setItem("categories", JSON.stringify(categories));
+          localStorage.setItem("expenses", JSON.stringify(expenses));
+          updateCategoryDropdown();
+          renderExpenses();
+          await updateCashbookFile();
+          showStatus("✅ Category DELETED from cashbook.json", "success");
+        }
+      }
+
+      async function addExpense() {
+        const date = dateInput.value;
+        const amount = parseFloat(amountInput.value.replace(/,/g, ""));
+        const category =
+          filterCategory.value === "all"
+            ? "Uncategorized"
+            : filterCategory.value;
+        const note = noteInput.value.trim();
+        const type = typeInput.value;
+
+        if (!date || !amount) return alert("Enter date and amount");
+
+        if (editIndex !== null) {
+          expenses[editIndex] = { date, amount, category, note, type };
+          editIndex = null;
+          addBtn.textContent = "Add";
+        } else {
+          expenses.push({ date, amount, category, note, type });
+        }
+
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+        amountInput.value = "";
+        noteInput.value = "";
+        renderExpenses();
+        await updateCashbookFile();
+      }
+
+      function editExpense(index) {
+        const selectedCat = filterCategory.value;
+        const filtered =
+          selectedCat === "all"
+            ? expenses
+            : expenses.filter((e) => e.category === selectedCat);
+        const item = filtered[index];
+        const realIndex = expenses.findIndex(
+          (e) =>
+            e.date === item.date &&
+            e.amount === item.amount &&
+            e.note === item.note &&
+            e.type === item.type &&
+            e.category === item.category
+        );
+
+        if (realIndex > -1) {
+          const exp = expenses[realIndex];
+          dateInput.value = exp.date;
+          amountInput.value = formatNumber(exp.amount);
+          noteInput.value = exp.note;
+          typeInput.value = exp.type;
+          editIndex = realIndex;
+          addBtn.textContent = "Update";
+        }
+      }
+
+      async function deleteExpense(index) {
+        if (confirm("Delete this transaction?")) {
+          const selectedCat = filterCategory.value;
+          const filtered =
+            selectedCat === "all"
+              ? expenses
+              : expenses.filter((e) => e.category === selectedCat);
+          const itemToDelete = filtered[index];
+          const realIndex = expenses.findIndex(
+            (e) =>
+              e.date === itemToDelete.date &&
+              e.amount === itemToDelete.amount &&
+              e.note === itemToDelete.note &&
+              e.type === itemToDelete.type &&
+              e.category === itemToDelete.category
+          );
+
+          if (realIndex > -1) {
+            expenses.splice(realIndex, 1);
+            localStorage.setItem("expenses", JSON.stringify(expenses));
+            renderExpenses();
+            await updateCashbookFile();
+            showStatus("✅ Deleted from cashbook.json", "success");
+          }
+        }
+      }
+
+      function renderExpenses() {
+        expenseTable.innerHTML = "";
+        const selectedCat = filterCategory.value;
+        localStorage.setItem("lastCategory", selectedCat);
+        let filtered =
+          selectedCat === "all"
+            ? expenses
+            : expenses.filter((e) => e.category === selectedCat);
+        let total = 0;
+
+        filtered.forEach((exp, i) => {
+          if (exp.type === "in") total += exp.amount;
+          else if (exp.type === "out") total -= exp.amount;
+
+          const tr = document.createElement("tr");
+          tr.draggable = true;
+          tr.dataset.index = i;
+          tr.className = "drag-grab";
+          let cls =
+            exp.type === "in"
+              ? "cash-in"
+              : exp.type === "out"
+              ? "cash-out"
+              : "";
+          tr.innerHTML = `
+            <td><span class="drag-handle" draggable="true">⋮⋮</span></td>
+            <td>${exp.note || ""}</td>
+            <td class="${cls}">₹${formatNumber(exp.amount)}</td>
+            <td>${exp.date}</td>
+            <td>
+              <button onclick="editExpense(${i})">✏️</button>
+              <button onclick="deleteExpense(${i})">🗑</button>
+            </td>
+          `;
+          expenseTable.appendChild(tr);
+        });
+
+        totalAmountEl.textContent = formatNumber(total);
+        totalAmountEl.style.color = total >= 0 ? "green" : "red";
+      }
+
+      /* ---------------- Import ---------------- */
+      const importFiles = document.getElementById("importFiles");
+
+      function makeId() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      }
+
+      async function mergeImportedData(importObj) {
+        let importedCategories = [];
+        let importedExpenses = [];
+
+        if (importObj.categories && Array.isArray(importObj.allExpenses)) {
+          importedCategories = importObj.categories || [];
+          importedExpenses = importObj.allExpenses || [];
+        } else if (importObj.category && Array.isArray(importObj.expenses)) {
+          importedCategories = [importObj.category];
+          importedExpenses = importObj.expenses || [];
+        } else if (Array.isArray(importObj)) {
+          importedExpenses = importObj;
+        } else if (importObj.expenses && Array.isArray(importObj.expenses)) {
+          importedExpenses = importObj.expenses;
+        }
+
+        importedCategories = importedCategories
+          .map((c) => (c || "Uncategorized").trim())
+          .filter(Boolean);
+        importedExpenses = importedExpenses.map((e) => {
+          const clone = Object.assign({}, e);
+          if (!clone.id) clone.id = makeId();
+          if (!clone.date) clone.date = new Date().toISOString().split("T")[0];
+          clone.amount = Number(clone.amount) || 0;
+          clone.category = clone.category || "Uncategorized";
+          return clone;
+        });
+
+        importedCategories.forEach((c) => {
+          if (!categories.includes(c)) categories.push(c);
+        });
+
+        const existingIds = new Set(
+          expenses.filter((x) => x?.id).map((x) => x.id)
+        );
+        let added = 0;
+        importedExpenses.forEach((imp) => {
+          if (!imp.id || !existingIds.has(imp.id)) {
+            if (!imp.id) imp.id = makeId();
+            expenses.push(imp);
+            existingIds.add(imp.id);
+            added++;
+          }
+        });
+
+        localStorage.setItem("categories", JSON.stringify(categories));
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+        return { added, totalAfter: expenses.length };
+      }
+
+      async function handleImportFiles(evt) {
+        const files = Array.from(evt.target.files || []);
+        if (!files.length) return;
+        let totalAdded = 0;
+
+        const readNext = async (index) => {
+          if (index >= files.length) {
+            renderExpenses();
+            await updateCashbookFile();
+            showStatus(
+              `✅ Imported ${totalAdded} expenses to cashbook.json`,
+              "success"
+            );
+            importFiles.value = "";
+            return;
+          }
+          const f = files[index];
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            try {
+              const obj = JSON.parse(e.target.result);
+              const res = await mergeImportedData(obj);
+              totalAdded += res.added;
+            } catch (err) {
+              try {
+                const arr = JSON.parse(e.target.result);
+                const res = await mergeImportedData(arr);
+                totalAdded += res.added;
+              } catch (err2) {
+                console.error("Import failed:", f.name);
+              }
+            }
+            await readNext(index + 1);
+          };
+          reader.readAsText(f);
+        };
+        readNext(0);
+      }
+
+      /* ---------------- Event Listeners ---------------- */
+      filterCategory.addEventListener("change", renderExpenses);
+      importFiles.addEventListener("change", handleImportFiles);
+      amountInput.addEventListener("input", (e) => {
+        e.target.value = formatInputWithCommas(e.target.value);
+      });
+
+      /* ---------------- Calculator ---------------- */
+      const calcBtn = document.getElementById("calcBtn");
+      const calcPopup = document.getElementById("calculatorPopup");
+      const calcDisplay = document.getElementById("calcDisplay");
+      const calcHandle = document.getElementById("calcHandle");
+      let userMoved = false;
+
+      function positionCalculator() {
+        if (userMoved) return;
+        const btnRect = calcBtn.getBoundingClientRect();
+        calcPopup.style.display = "block";
+        const popupRect = calcPopup.getBoundingClientRect();
+        const popupWidth = popupRect.width || 220;
+        const popupHeight = popupRect.height || 300;
+        let top = btnRect.bottom + 8;
+        let left = btnRect.right - popupWidth;
+        if (left + popupWidth > window.innerWidth - 8)
+          left = Math.max(8, window.innerWidth - popupWidth - 8);
+        if (left < 8) left = 8;
+        if (top + popupHeight > window.innerHeight - 8)
+          top = Math.max(8, btnRect.top - popupHeight - 8);
+        calcPopup.style.top = `${Math.round(top)}px`;
+        calcPopup.style.left = `${Math.round(left)}px`;
+      }
+
+      function toggleCalculator() {
+        if (calcPopup.classList.contains("open")) {
+          calcPopup.classList.remove("open");
+          setTimeout(() => {
+            if (!calcPopup.classList.contains("open"))
+              calcPopup.style.display = "none";
+          }, 150);
+        } else {
+          calcPopup.style.display = "block";
+          requestAnimationFrame(() => {
+            positionCalculator();
+            calcPopup.classList.add("open");
+          });
+        }
+      }
+
+      calcBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        toggleCalculator();
+      });
+      document.addEventListener("click", (e) => {
+        if (
+          !calcPopup.contains(e.target) &&
+          e.target !== calcBtn &&
+          calcPopup.classList.contains("open")
+        ) {
+          toggleCalculator();
+        }
+      });
+      window.addEventListener("resize", () => {
+        if (calcPopup.classList.contains("open")) positionCalculator();
+      });
+      window.addEventListener(
+        "scroll",
+        () => {
+          if (calcPopup.classList.contains("open")) positionCalculator();
+        },
+        true
+      );
+
+      let isDragging = false,
+        dragOffsetX = 0,
+        dragOffsetY = 0;
+      function onPointerDown(e) {
+        if (e.type === "pointerdown" && e.button > 0) return;
+        isDragging = true;
+        userMoved = true;
+        const rect = calcPopup.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        try {
+          calcHandle.setPointerCapture(e.pointerId);
+        } catch {}
+        document.addEventListener("pointermove", onPointerMove);
+        document.addEventListener("pointerup", onPointerUp);
+        e.preventDefault();
+      }
+      function onPointerMove(e) {
+        if (!isDragging) return;
+        const popupWidth = calcPopup.getBoundingClientRect().width;
+        const popupHeight = calcPopup.getBoundingClientRect().height;
+        let left = e.clientX - dragOffsetX;
+        let top = e.clientY - dragOffsetY;
+        const minLeft = 8,
+          minTop = 8;
+        const maxLeft = Math.max(minLeft, window.innerWidth - popupWidth - 8);
+        const maxTop = Math.max(minTop, window.innerHeight - popupHeight - 8);
+        left = Math.max(minLeft, Math.min(left, maxLeft));
+        top = Math.max(minTop, Math.min(top, maxTop));
+        calcPopup.style.left = `${Math.round(left)}px`;
+        calcPopup.style.top = `${Math.round(top)}px`;
+      }
+      function onPointerUp(e) {
+        isDragging = false;
+        try {
+          calcHandle.releasePointerCapture(e.pointerId);
+        } catch {}
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerUp);
+      }
+      calcHandle.addEventListener("pointerdown", onPointerDown);
+
+      document.querySelectorAll(".calc-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const val = e.target.textContent;
+          if (val === "C") calcDisplay.value = "";
+          else if (val === "=") {
+            try {
+              calcDisplay.value = eval(calcDisplay.value) || "";
+            } catch {
+              calcDisplay.value = "Error";
+              setTimeout(() => {
+                if (calcDisplay.value === "Error") calcDisplay.value = "";
+              }, 900);
+            }
+          } else if (val === "⌫")
+            calcDisplay.value = calcDisplay.value.slice(0, -1);
+          else calcDisplay.value += val;
+        });
+      });
+
+      init();
+    </script>
+  </body>
+</html>

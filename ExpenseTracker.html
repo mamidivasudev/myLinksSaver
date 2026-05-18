@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expense Tracker</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f2f8f8;
+      padding: 20px;
+    }
+
+    .tracker {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2.title {
+      text-align: center;
+      background-color: #70a5d7;
+      color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .section {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    select,
+    input[type="number"],
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      flex: 1 1 180px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #70a5d7;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #558bbf;
+    }
+
+    .reset-btn {
+      background-color: #f0a500;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #cde3a5;
+    }
+
+    .highlight {
+      background-color: #fef3c0;
+      font-weight: bold;
+    }
+
+    .balance {
+      background-color: #e0ffc0;
+    }
+
+    .delete-btn {
+      background-color: #ff4c4c;
+      padding: 5px 10px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .delete-btn:hover {
+      background-color: #d63636;
+    }
+
+    @media (max-width: 600px) {
+      .section {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="tracker">
+    <h2 class="title">Monthly Cash In/Out Tracker</h2>
+
+    <div class="section">
+      <label for="monthSelector">Select Month:</label>
+      <select id="monthSelector">
+        <option value="January">January</option><option value="February">February</option>
+        <option value="March">March</option><option value="April">April</option>
+        <option value="May">May</option><option value="June">June</option>
+        <option value="July">July</option><option value="August">August</option>
+        <option value="September">September</option><option value="October">October</option>
+        <option value="November">November</option><option value="December">December</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <input type="text" id="entryName" placeholder="Name" />
+      <input type="number" id="entryAmount" placeholder="Amount (₹)" />
+      <select id="entryType">
+        <option value="in">Cash In</option>
+        <option value="out">Cash Out</option>
+      </select>
+      <button onclick="addEntry()">Save</button>
+      <button class="reset-btn" onclick="resetInputs()">Reset</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Amount (₹)</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="expenseBody"></tbody>
+      <tfoot>
+        <tr class="highlight">
+          <td>Total Cash In</td>
+          <td colspan="3" id="totalIn">0</td>
+        </tr>
+        <tr class="highlight">
+          <td>Total Cash Out</td>
+          <td colspan="3" id="totalOut">0</td>
+        </tr>
+        <tr class="balance">
+          <td>Balance</td>
+          <td colspan="3" id="balance">0</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <script>
+    const entryNameInput = document.getElementById("entryName");
+    const entryAmountInput = document.getElementById("entryAmount");
+    const entryTypeInput = document.getElementById("entryType");
+    const expenseBody = document.getElementById("expenseBody");
+    const totalInEl = document.getElementById("totalIn");
+    const totalOutEl = document.getElementById("totalOut");
+    const balanceEl = document.getElementById("balance");
+    const monthSelector = document.getElementById("monthSelector");
+
+    let data = {};
+
+    function loadFromLocalStorage() {
+      const stored = localStorage.getItem("monthlyCashData");
+      if (stored) data = JSON.parse(stored);
+    }
+
+    function saveToLocalStorage() {
+      localStorage.setItem("monthlyCashData", JSON.stringify(data));
+    }
+
+    function updateDisplay() {
+      const month = monthSelector.value;
+      const monthData = data[month] || { entries: [] };
+      data[month] = monthData;
+
+      expenseBody.innerHTML = "";
+      let totalIn = 0, totalOut = 0;
+
+      monthData.entries.forEach((ent, index) => {
+        if (ent.type === "in") totalIn += ent.amount;
+        else totalOut += ent.amount;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${ent.name}</td>
+          <td>${ent.type === "in" ? "Cash In" : "Cash Out"}</td>
+          <td>${ent.amount.toLocaleString("en-IN")}</td>
+          <td><button class="delete-btn" onclick="deleteEntry(${index})">Delete</button></td>
+        `;
+        expenseBody.appendChild(row);
+      });
+
+      totalInEl.textContent = totalIn.toLocaleString("en-IN");
+      totalOutEl.textContent = totalOut.toLocaleString("en-IN");
+      balanceEl.textContent = (totalIn - totalOut).toLocaleString("en-IN");
+    }
+
+    function addEntry() {
+      const month = monthSelector.value;
+      const name = entryNameInput.value.trim();
+      const amount = parseInt(entryAmountInput.value);
+      const type = entryTypeInput.value;
+
+      if (!name || isNaN(amount) || amount <= 0) {
+        alert("Please enter valid details.");
+        return;
+      }
+
+      if (!data[month]) data[month] = { entries: [] };
+      data[month].entries.push({ name, amount, type });
+
+      saveToLocalStorage();
+      updateDisplay();
+      resetInputs();
+    }
+
+    function deleteEntry(index) {
+      const month = monthSelector.value;
+      if (data[month]) {
+        data[month].entries.splice(index, 1);
+        saveToLocalStorage();
+        updateDisplay();
+      }
+    }
+
+    function resetInputs() {
+      entryNameInput.value = "";
+      entryAmountInput.value = "";
+      entryTypeInput.value = "in";
+    }
+
+    monthSelector.addEventListener("change", updateDisplay);
+
+    // Init
+    loadFromLocalStorage();
+    const now = new Date();
+    monthSelector.value = monthSelector.options[now.getMonth()].value;
+    updateDisplay();
+  </script>
+</body>
+</html>

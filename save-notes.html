@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Notes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600&family=Lexend:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --primary: #1d63d2;
+      --primary-hover: #164fa1;
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --success: #10b981;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius: 12px;
+      --font-sans: 'Lexend', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-body);
+      color: var(--text-main);
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-actions button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .header-actions button:hover {
+      background: var(--bg-body);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* Settings Dropdown */
+    .settings-wrap {
+      position: relative;
+    }
+
+    .settings-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 220px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 8px;
+      z-index: 3000;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .settings-menu.open {
+      display: flex;
+    }
+
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .settings-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .settings-group select {
+      width: 100%;
+      height: 36px;
+    }
+
+    .settings-group.row {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .settings-group.row label {
+      margin: 0;
+    }
+
+    .reset-link {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 0.7rem;
+      cursor: pointer;
+      padding: 0;
+      font-weight: 600;
+    }
+
+    .reset-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden !important; /* Locked sidebar scroll */
+    }
+
+    .sidebar::-webkit-scrollbar:horizontal,
+    .sidebar *::-webkit-scrollbar:horizontal {
+      display: none !important;
+      height: 0 !important;
+    }
+
+    .sidebar-header {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      overflow: visible !important; /* Allow dropdown to overlap */
+      position: relative;
+      z-index: 20;
+    }
+
+    .category-control {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    select {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-family: inherit;
+      color: var(--text-main);
+      outline: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.2em 1.2em;
+      appearance: none;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      background: transparent;
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .icon-btn i,
+    .icon-btn svg {
+      pointer-events: none;
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-body);
+      color: var(--text-main);
+    }
+
+    .icon-btn.danger:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      background: #fef2f2;
+    }
+
+    /* Custom category dropdown (Clean Style) */
+    .cat-drop-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0; /* Allow flex child to shrink */
+    }
+
+    .cat-trigger {
+      display: flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1.5px solid #1d63d2;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #000;
+      user-select: none;
+      gap: 6px;
+      transition: all 0.15s;
+      height: 34px;
+      min-width: 0; /* Allow flex child to shrink and truncate text */
+    }
+
+    .cat-trigger:hover {
+      background: #f8fafc;
+    }
+
+    #catTriggerLabel {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: left;
+    }
+
+    .cat-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      min-width: 220px;
+      background: #fff;
+      border: 1px solid #333;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      max-height: 400px;
+      overflow-y: auto;
+      overscroll-behavior: contain; /* Prevents sidebar/body from moving */
+      padding: 0;
+      opacity: 0;
+      transform: translateY(2px);
+      pointer-events: none;
+      transition: all 0.1s ease;
+    }
+
+    /* Premium Custom Scrollbar for Category Menu */
+    .cat-menu::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .cat-menu::-webkit-scrollbar-track {
+      background: #f8fafc;
+    }
+
+    .cat-menu::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+      border: 2px solid #f8fafc;
+    }
+
+    .cat-menu::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .cat-menu.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.1s;
+      color: #000;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .cat-item:hover {
+      background: #1d63d2;
+      color: #fff;
+    }
+
+    .cat-item.selected {
+      background: transparent;
+      color: #1d63d2;
+      font-weight: 700;
+    }
+
+    .cat-item:hover .cat-item-name {
+      color: #fff;
+    }
+
+    .cat-item.selected .cat-item-name {
+      color: #1d63d2;
+    }
+
+    .cat-item-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .cat-item-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+      opacity: 0.4;
+      transition: opacity 0.15s;
+    }
+
+    .cat-item:hover .cat-item-actions {
+      opacity: 1;
+    }
+
+    .cat-item-actions button {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: inherit;
+      padding: 0;
+      transition: background 0.15s;
+    }
+
+    .cat-item-actions button:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .cat-item.selected .cat-item-actions button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .cat-item-actions button.danger-hover:hover {
+      color: #ef4444;
+      background: #fef2f2;
+    }
+
+    /* Context Menu for 3-dots */
+    .ctx-menu {
+      position: fixed;
+      background: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-radius: 6px;
+      z-index: 2000;
+      display: none;
+      padding: 4px;
+      min-width: 120px;
+    }
+
+    .ctx-menu.open {
+      display: block;
+    }
+
+    .ctx-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 4px;
+      color: #333;
+    }
+
+    .ctx-item:hover {
+      background: #f1f5f9;
+      color: #1d63d2;
+    }
+
+    .ctx-item.danger:hover {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+
+    /* Compact notes list (small rows) */
+    .notes-list {
+      flex: 1;
+      overflow-y: hidden;
+      overflow-x: hidden !important;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+
+    .notes-list::-webkit-scrollbar:horizontal,
+    #notesListInner::-webkit-scrollbar:horizontal {
+      display: none;
+      height: 0;
+    }
+
+    /* make list look like simple rows */
+    .note-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      transition: all .1s ease;
+      min-height: 24px;
+      font-size: 0.9rem;
+    }
+
+    .note-row:hover {
+      background: #fbfdff;
+      border-color: var(--border);
+      transform: translateX(2px);
+    }
+
+    .note-row.active {
+      background: #eef2ff;
+      border-color: var(--primary);
+    }
+
+    .note-row .index-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: #f1f5f9;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .note-row.active .index-num {
+      background: var(--primary);
+      color: white;
+    }
+
+    .note-row .title {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-main);
+      font-weight: 500;
+      user-select: none;
+    }
+
+    .note-row .meta {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-left: 6px;
+      flex-shrink: 0;
+    }
+
+    .note-row .row-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-left: 8px;
+      flex-shrink: 0;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+    }
+
+    .note-row:hover .row-actions,
+    .note-row.active .row-actions {
+      opacity: 1;
+    }
+
+    .bulk-actions {
+      display: none;
+      padding: 6px 12px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .icon-btn.danger.active {
+      background: #fef2f2;
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .row-actions button {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .row-actions button:hover {
+      background: var(--bg-body);
+      color: var(--primary);
+      border-color: var(--border);
+    }
+
+    .row-actions button.danger:hover {
+      background: #fef2f2;
+      color: var(--danger);
+      border-color: #fee2e2;
+    }
+
+    .sidebar-footer {
+      padding: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      overflow-x: hidden !important;
+    }
+
+    /* Editor Area */
+    .editor-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-body);
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .editor-card {
+      background: var(--bg-card);
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .editor-toolbar {
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      min-height: 44px;
+    }
+
+    .editor-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn i,
+    .btn svg {
+      pointer-events: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-main);
+      border-color: var(--border);
+    }
+
+    #editor {
+      flex: 1;
+      padding: 20px 32px;
+      outline: none;
+      overflow-y: auto;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #334155;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    #editor.no-wrap {
+      white-space: pre;
+      overflow-x: auto;
+      width: auto;
+      min-width: 100%;
+    }
+
+    #editor:empty:before {
+      content: 'Start typing your note here...';
+      color: #94a3b8;
+    }
+
+    #editor u,
+    #editor span[style*="underline"] {
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1.5px;
+      text-decoration-style: dashed;
+    }
+
+    #editor hr {
+      border: none;
+      border-top: 2.5px dashed #000;
+      margin: 16px 0;
+    }
+
+    .status-bar {
+      padding: 8px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: #f8fafc;
+      text-align: right;
+    }
+
+    /* Calculator (unchanged) */
+    #calculatorPopup {
+      display: none;
+      position: fixed;
+      top: 100px;
+      left: 100px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      padding: 12px;
+      z-index: 2000;
+      width: 240px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    #calculatorPopup.open {
+      display: block;
+    }
+
+    #calcHandle {
+      width: 40px;
+      height: 4px;
+      background: #cbd5e1;
+      border-radius: 2px;
+      margin: 0 auto 10px;
+      cursor: grab;
+    }
+
+    #calcDisplay {
+      width: 100%;
+      height: 48px;
+      font-size: 1.25rem;
+      text-align: right;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      padding: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-family: 'Inter', monospace;
+      font-weight: 600;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .calc-btn {
+      font-size: 1rem;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #f1f5f9;
+      cursor: pointer;
+    }
+
+    .calc-btn[data-action="equals"] {
+      background: var(--primary);
+      color: #fff;
+      grid-column: span 2;
+    }
+
+    .calc-btn[data-action="clear"] {
+      color: var(--danger);
+      background: #fef2f2;
+      grid-column: span 2;
+    }
+
+    /* Modal */
+    #previewModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(2px);
+      z-index: 4000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #previewContent {
+      background: #fff;
+      max-width: 800px;
+      width: 100%;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #f1f5f9;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @media (max-width:768px) {
+      .main-container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: 220px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .editor-area {
+        padding: 12px;
+      }
+
+      #editor {
+        padding: 20px;
+      }
+    }
+
+    /* Premium Toggle Switch styling */
+    .switch {
+      position: relative;
+      display: inline-flex;
+      width: 34px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: .25s ease;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .25s ease;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">
+      <i data-lucide="book-open" style="color: var(--primary)"></i>
+      My Notes
+    </div>
+    <div class="header-actions" style="display:flex;align-items:center;gap:10px;">
+      <span id="fileStatus"
+        style="font-size:0.72rem;color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+        title="">No file</span>
+      <button id="openFileBtn" title="Pick Folder for Sync"><i data-lucide="folder-open"></i></button>
+      <button id="syncBtn" title="Sync Notes to File"><i data-lucide="refresh-cw"></i></button>
+      <div class="settings-wrap">
+        <button id="settingsBtn" title="Editor Settings"><i data-lucide="settings"></i></button>
+        <div id="settingsMenu" class="settings-menu">
+          <div class="settings-group">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+              <label>Font Style</label>
+              <button id="resetFontFamily" class="reset-link">Reset</button>
+            </div>
+            <select id="settingFontFamily">
+              <option value="'Lexend', sans-serif">Lexend (Modern)</option>
+              <option value="'Inter', sans-serif">Inter (UI)</option>
+              <option value="'Outfit', sans-serif">Outfit (Round)</option>
+              <option value="'Consolas', 'Monaco', 'Courier New', monospace">Monospace (Code)</option>
+            </select>
+          </div>
+          <div class="settings-group">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+              <label>Font Size</label>
+              <button id="resetFontSize" class="reset-link">Reset</button>
+            </div>
+            <select id="settingFontSize">
+              <option value="12px">Small</option>
+              <option value="14px">Normal</option>
+              <option value="16px" selected>Default</option>
+              <option value="18px">Large</option>
+              <option value="20px">Extra Large</option>
+              <option value="24px">Huge</option>
+            </select>
+          </div>
+          <div class="settings-group">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+              <label>Line Spacing</label>
+              <button id="resetLineHeight" class="reset-link">Reset</button>
+            </div>
+            <select id="settingLineHeight">
+              <option value="1.0">Tight</option>
+              <option value="1.2">Compact</option>
+              <option value="1.4">Normal</option>
+              <option value="1.6" selected>Comfortable</option>
+              <option value="1.8">Loose</option>
+              <option value="2.0">Extra Loose</option>
+              <option value="2.5">Double Space</option>
+              <option value="3.0">Triple Space</option>
+            </select>
+          </div>
+          <div class="settings-group row">
+            <label>Word Wrap</label>
+            <input type="checkbox" id="settingWordWrap" checked style="width:20px;height:20px;cursor:pointer;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <label
+          style="font-size:0.72rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.05em;">Category</label>
+        <div class="category-control">
+          <div id="catDropWrap" class="cat-drop-wrap">
+            <div id="catTrigger" class="cat-trigger">
+              <span id="catTriggerLabel">Select category</span>
+              <i data-lucide="chevron-down" size="14" style="flex-shrink:0; opacity:0.7;"></i>
+            </div>
+            <div id="catMenu" class="cat-menu"></div>
+          </div>
+          <button class="icon-btn" id="btnAddCat" title="Add Category"><i data-lucide="plus" size="14"></i></button>
+        </div>
+      </div>
+
+      <div id="notesList" class="notes-list">
+        <div id="bulkActions" class="bulk-actions" style="display: none;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;cursor:pointer;">
+            <input type="checkbox" id="selectAll"> All
+          </label>
+          <button id="btnBulkDelete" class="btn btn-ghost danger"
+            style="padding:4px 8px;font-size:0.75rem;color:var(--danger);">
+            <i data-lucide="trash-2" size="14"></i> Delete (<span id="selectedCount">0</span>)
+          </button>
+        </div>
+        <div id="notesListInner" style="flex:1;overflow-y:auto;overflow-x:hidden !important;"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="btnExport" class="btn btn-ghost" style="flex:1;justify-content:center;font-size:0.8rem;">
+          <i data-lucide="download" size="14"></i> Export
+        </button>
+        <button id="btnImport" class="btn btn-ghost" style="flex:1;justify-content:center;font-size:0.8rem;">
+          <i data-lucide="upload" size="14"></i> Import
+        </button>
+        <input id="importFile" type="file" accept=".json,.txt,text/plain,application/json" style="display:none"
+          multiple />
+      </div>
+    </aside>
+
+    <!-- Editor -->
+    <main class="editor-area">
+      <div class="editor-card">
+        <div class="editor-toolbar">
+          <div class="editor-title" id="editorBreadcrumb"
+            style="display:flex;align-items:center;gap:6px;font-size:0.95rem;">
+            <span style="color:var(--text-muted);font-weight:400;">📁</span>
+            <span id="bcCategory" style="color:var(--primary);font-weight:600;">—</span>
+            <span style="color:var(--text-muted);font-weight:300;">›</span>
+            <span id="bcNote" style="color:var(--text-muted);font-weight:400;font-size:0.85rem;">No note open</span>
+          </div>
+          <div class="toolbar-actions">
+            <label class="btn btn-ghost" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;" title="Auto-save with first line as title">
+              <span style="font-size: 0.85rem; font-weight: 500; user-select: none;">Auto Title</span>
+              <span class="switch">
+                <input type="checkbox" id="autoTitleToggle">
+                <span class="slider"></span>
+              </span>
+            </label>
+            <button id="newNoteBtn" class="btn btn-ghost">New</button>
+            <button id="copyNoteBtn" class="btn btn-ghost">Copy</button>
+            <button id="previewBtn" class="btn btn-ghost">Preview</button>
+            <button id="underlineBtn" class="btn btn-ghost" title="Underline selected text"><i data-lucide="underline"
+                size="14"></i></button>
+            <button id="lineBtn" class="btn btn-ghost" title="Insert horizontal line"><i data-lucide="minus"
+                size="14"></i></button>
+            <button id="formatJsonBtn" class="btn btn-ghost" title="Format as JSON">JSON</button>
+            <button id="deleteNoteBtn" class="btn btn-ghost" style="color: var(--danger)">Delete</button>
+            <button id="saveNoteBtn" class="btn btn-primary"><i data-lucide="save" size="14"></i> Save</button>
+          </div>
+        </div>
+
+        <div id="editor" contenteditable="true" spellcheck="false"></div>
+        <script>
+          // Enable Tab key in editor
+          document.getElementById('editor').addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+              e.preventDefault();
+              document.execCommand('insertText', false, '    ');
+            }
+          });
+        </script>
+
+        <div class="status-bar">
+          Last saved: <span id="lastSaved">—</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Preview Modal -->
+  <div id="previewModal" aria-hidden="true">
+    <div id="previewContent">
+      <button id="closePreview" class="close-modal">Close</button>
+      <h2 style="margin-top:0;margin-bottom:16px;border-bottom:1px solid #eee;padding-bottom:8px;">Preview</h2>
+      <div id="previewBody" style="white-space:pre-wrap;font-size:1.03rem;line-height:1.6;"></div>
+    </div>
+  </div>
+
+  <!-- Calculator -->
+  <div id="calculatorPopup">
+    <div id="calcHandle"></div>
+    <input id="calcDisplay" type="text" readonly placeholder="0" />
+    <div class="calc-grid">
+      <button class="calc-btn" id="calcClear" data-action="clear">C</button>
+      <button class="calc-btn" data-action="back"><i data-lucide="delete" size="16"></i></button>
+      <button class="calc-btn" data-val="/">÷</button>
+
+      <button class="calc-btn" data-val="7">7</button>
+      <button class="calc-btn" data-val="8">8</button>
+      <button class="calc-btn" data-val="9">9</button>
+      <button class="calc-btn" data-val="*">×</button>
+
+      <button class="calc-btn" data-val="4">4</button>
+      <button class="calc-btn" data-val="5">5</button>
+      <button class="calc-btn" data-val="6">6</button>
+      <button class="calc-btn" data-val="-">−</button>
+
+      <button class="calc-btn" data-val="1">1</button>
+      <button class="calc-btn" data-val="2">2</button>
+      <button class="calc-btn" data-val="3">3</button>
+      <button class="calc-btn" data-val="+">+</button>
+
+      <button class="calc-btn" data-val="0">0</button>
+      <button class="calc-btn" data-val=".">.</button>
+      <button class="calc-btn" id="calcEquals" data-action="equals">=</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      try { if (window.lucide && lucide.createIcons) lucide.createIcons(); } catch (e) { console.warn('lucide failed', e); }
+
+      // Keys + elements
+      const NOTES_PREFIX = 'myNotes.';
+      const CATS_KEY = NOTES_PREFIX + 'categories';
+      const NOTES_KEY = NOTES_PREFIX + 'notes_v1';
+      const LASTCAT_KEY = NOTES_PREFIX + 'lastCategory';
+
+      const catTrigger = document.getElementById('catTrigger');
+      const catTriggerLabel = document.getElementById('catTriggerLabel');
+      const catMenu = document.getElementById('catMenu');
+      const notesList = document.getElementById('notesList');
+      const editor = document.getElementById('editor');
+      const saveNoteBtn = document.getElementById('saveNoteBtn');
+      const newNoteBtn = document.getElementById('newNoteBtn');
+      const deleteNoteBtn = document.getElementById('deleteNoteBtn');
+      const lastSaved = document.getElementById('lastSaved');
+      const btnAddCat = document.getElementById('btnAddCat');
+      const underlineBtn = document.getElementById('underlineBtn');
+      const lineBtn = document.getElementById('lineBtn');
+      const formatJsonBtn = document.getElementById('formatJsonBtn');
+      const settingsBtn = document.getElementById('settingsBtn');
+      const settingsMenu = document.getElementById('settingsMenu');
+      const settingFontFamily = document.getElementById('settingFontFamily');
+      const settingFontSize = document.getElementById('settingFontSize');
+      const settingLineHeight = document.getElementById('settingLineHeight');
+      const settingWordWrap = document.getElementById('settingWordWrap');
+      const resetFontFamily = document.getElementById('resetFontFamily');
+      const resetFontSize = document.getElementById('resetFontSize');
+      const resetLineHeight = document.getElementById('resetLineHeight');
+
+      const btnExport = document.getElementById('btnExport');
+      const btnImport = document.getElementById('btnImport');
+      const importFile = document.getElementById('importFile');
+      const previewBtn = document.getElementById('previewBtn');
+      const previewModal = document.getElementById('previewModal');
+      const previewBody = document.getElementById('previewBody');
+      const closePreview = document.getElementById('closePreview');
+      const openFileBtn = document.getElementById('openFileBtn');
+      const syncBtn = document.getElementById('syncBtn');
+      const fileStatusEl = document.getElementById('fileStatus');
+      const calcPopup = document.getElementById('calculatorPopup');
+      const calcDisplay = document.getElementById('calcDisplay');
+      const calcHandle = document.getElementById('calcHandle');
+
+      // ── File System Access (IndexedDB-persisted handle) ──────────────
+      let fileHandle = null;
+      const _IDB = { name: 'myNotesFileDB', store: 'handles', key: 'notesHandle' };
+
+      function _openIDB() {
+        return new Promise((res, rej) => {
+          const r = indexedDB.open(_IDB.name, 1);
+          r.onupgradeneeded = e => e.target.result.createObjectStore(_IDB.store);
+          r.onsuccess = e => res(e.target.result);
+          r.onerror = e => rej(e.target.error);
+        });
+      }
+      async function _getHandle() {
+        try { const db = await _openIDB(); return new Promise(r => { const q = db.transaction(_IDB.store, 'readonly').objectStore(_IDB.store).get(_IDB.key); q.onsuccess = e => r(e.target.result || null); q.onerror = () => r(null); }); } catch { return null; }
+      }
+      async function _putHandle(h) {
+        try { const db = await _openIDB(); return new Promise(r => { const tx = db.transaction(_IDB.store, 'readwrite'); tx.objectStore(_IDB.store).put(h, _IDB.key); tx.oncomplete = r; tx.onerror = r; }); } catch { }
+      }
+
+      function updateFileStatus() {
+        if (!fileStatusEl) return;
+        if (fileHandle) { fileStatusEl.textContent = '📄 ' + fileHandle.name; fileStatusEl.style.color = 'var(--success)'; fileStatusEl.title = fileHandle.name; }
+        else { fileStatusEl.textContent = 'No file'; fileStatusEl.style.color = 'var(--text-muted)'; fileStatusEl.title = 'No file selected'; }
+      }
+
+      async function syncToFile() {
+        if (!fileHandle) return; // Silent return if no handle
+        try {
+          const w = await fileHandle.createWritable();
+          await w.write(JSON.stringify({ categories, notesData }, null, 2));
+          await w.close();
+          console.log('Auto-synced to file');
+        } catch (e) { console.warn('Auto-sync failed', e); }
+      }
+
+      async function syncFromFile() {
+        if (!fileHandle) { await openNotesFile(); return; }
+        try {
+          let p = await fileHandle.queryPermission({ mode: 'readwrite' });
+          if (p !== 'granted') p = await fileHandle.requestPermission({ mode: 'readwrite' });
+          if (p !== 'granted') { showToast('Permission denied'); return; }
+
+          const file = await fileHandle.getFile();
+          const txt = await file.text();
+          if (txt && txt.trim()) {
+            const pData = JSON.parse(txt);
+            if (pData.categories && pData.notesData) {
+              categories = pData.categories;
+              notesData = pData.notesData;
+              saveStorage();
+              updateCategoryDropdown();
+              showToast('✓ Updated from file');
+            }
+          } else {
+            showToast('File is empty');
+          }
+        } catch (e) {
+          if (e.name !== 'AbortError') {
+            console.error(e);
+            showToast('Sync failed');
+          }
+        }
+      }
+
+      async function openNotesFile() {
+        if (!window.showDirectoryPicker) { alert('Directory Picker not supported.'); return; }
+        try {
+          const dirHandle = await window.showDirectoryPicker();
+          localStorage.setItem(NOTES_PREFIX + 'syncFolderName', dirHandle.name);
+
+          // Request permission
+          if (await dirHandle.requestPermission({ mode: 'readwrite' }) !== 'granted') {
+            showToast('Permission denied'); return;
+          }
+
+          // Try to get or create notes_data.json
+          const h = await dirHandle.getFileHandle('notes_data.json', { create: true });
+          fileHandle = h;
+
+          const file = await h.getFile();
+          const txt = await file.text();
+          if (txt && txt.trim()) {
+            try {
+              const p = JSON.parse(txt);
+              if (p.categories && p.notesData) {
+                const isLocalEmpty = categories.length <= 1 && Object.keys(notesData).every(k => !notesData[k] || notesData[k].length === 0);
+                if (isLocalEmpty || confirm(`Load notes from "${h.name}"?`)) {
+                  categories = p.categories; notesData = p.notesData;
+                  saveStorage(); updateCategoryDropdown();
+                  showToast('✓ Notes loaded');
+                }
+              }
+            } catch (e) { console.warn("Existing file was not valid JSON or empty."); }
+          } else {
+            // New or empty file, sync current local data to it
+            const w = await h.createWritable();
+            await w.write(JSON.stringify({ categories, notesData }, null, 2));
+            await w.close();
+            showToast('✓ notes_data.json created');
+          }
+
+          await _putHandle(h);
+          updateFileStatus();
+        } catch (e) { if (e.name !== 'AbortError') showToast('Open failed'); }
+      }
+
+      async function initFileHandle() {
+        const h = await _getHandle();
+        if (h) {
+          fileHandle = h;
+          updateFileStatus();
+          // Attempt silent restore if permission is already granted and app is empty
+          try {
+            const isLocalEmpty = categories.length <= 1 && Object.keys(notesData).every(k => !notesData[k] || notesData[k].length === 0);
+            if (isLocalEmpty && (await h.queryPermission({ mode: 'readwrite' })) === 'granted') {
+              const txt = await (await h.getFile()).text();
+              const p = JSON.parse(txt);
+              if (p.categories && p.notesData) {
+                categories = p.categories; notesData = p.notesData;
+                saveStorage(); updateCategoryDropdown();
+                showToast('✓ Synced from file');
+              }
+            }
+          } catch (e) { }
+        } else { updateFileStatus(); }
+      }
+      // ─────────────────────────────────────────────────────────────────
+
+      let categories = JSON.parse(localStorage.getItem(CATS_KEY)) || ['General'];
+      let notesData = JSON.parse(localStorage.getItem(NOTES_KEY)) || {};
+      let selectedCategory = null;
+      let selectedNoteIndex = null;
+
+      const uid = () => Math.random().toString(36).slice(2, 9);
+      const saveStorage = () => { 
+        try { 
+          localStorage.setItem(CATS_KEY, JSON.stringify(categories)); 
+          localStorage.setItem(NOTES_KEY, JSON.stringify(notesData)); 
+        } catch (e) {
+          console.warn("Browser LocalStorage is full (5MB limit reached). Saving safely directly to sync file instead!", e);
+        }
+      };
+
+      // --- helper: escape + linkify ---
+      function escapeHtml(str) {
+        if (!str) return '';
+        return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+      }
+      function makeLinksClickable(text) {
+        if (!text) return "";
+
+        // If text is very large, skip linkify to avoid lag
+        if (text.length > 5000) return escapeHtml(text);
+
+        const escaped = escapeHtml(text);
+        const urlRegex = /((https?:\/\/)[\w-@:%._+~#=\/?&;,]*)/g;
+        return escaped.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+      }
+
+      function stripHtml(html) {
+        if (!html) return '';
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+      }
+
+      // Show toast message (must be inside DOMContentLoaded so DOM exists)
+      // Show toast (top-center)
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.style.opacity = "1";
+        toast.style.transform = "translate(-50%, 0)"; // move into place
+
+        clearTimeout(toast._hideTimer);
+        toast._hideTimer = setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transform = "translate(-50%, -8px)"; // hide slightly above
+        }, 2000);
+      }
+
+
+      // COPY button: copy selected note to clipboard and show toast
+      const copyNoteBtn = document.getElementById('copyNoteBtn');
+      if (copyNoteBtn) {
+        copyNoteBtn.addEventListener('click', async () => {
+          if (selectedCategory === null || selectedNoteIndex === null) {
+            showToast("Select a note first!");
+            return;
+          }
+
+          const note = (notesData[selectedCategory] || [])[selectedNoteIndex];
+          if (!note) { showToast("No note found"); return; }
+
+          try {
+            await navigator.clipboard.writeText(note.content || "");
+            showToast("Copied!");
+          } catch (err) {
+            console.error(err);
+            showToast("Copy failed");
+          }
+        });
+      }
+
+      function init() {
+        categories.forEach(c => { if (!notesData[c]) notesData[c] = []; });
+        saveStorage();
+        updateCategoryDropdown();
+      }
+
+      // ── Custom category dropdown helpers ──────────────────────────────
+      function closeCatMenu() {
+        catMenu.classList.remove('open');
+        catTrigger.classList.remove('open');
+        isCatBulkMode = false;
+        selectedCats.clear();
+      }
+
+      function setCategoryTrigger(cat) {
+        selectedCategory = cat;
+        catTriggerLabel.textContent = cat || '-- Select --';
+        localStorage.setItem(LASTCAT_KEY, cat || '');
+      }
+
+      function buildCatMenu() {
+        catMenu.innerHTML = '';
+        categories.forEach(c => {
+          const isSelected = (c === selectedCategory);
+          const item = document.createElement('div');
+          item.className = 'cat-item' + (isSelected ? ' selected' : '');
+
+          if (isCatBulkMode && c !== 'General') {
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.checked = selectedCats.has(c);
+            cb.style.marginRight = '8px';
+            cb.style.cursor = 'pointer';
+            cb.addEventListener('click', (e) => {
+              e.stopPropagation();
+            });
+            cb.addEventListener('change', () => {
+              if (cb.checked) selectedCats.add(c);
+              else selectedCats.delete(c);
+              buildCatMenu(); // Update footer button counts
+            });
+            item.appendChild(cb);
+          }
+
+          const nameEl = document.createElement('span');
+          nameEl.className = 'cat-item-name';
+          nameEl.textContent = c;
+          
+          if (isCatBulkMode) {
+            item.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (c === 'General') return;
+              const cb = item.querySelector('input[type="checkbox"]');
+              if (cb) {
+                cb.checked = !cb.checked;
+                cb.dispatchEvent(new Event('change'));
+              }
+            });
+          } else {
+            nameEl.addEventListener('click', () => {
+              setCategoryTrigger(c);
+              selectedNoteIndex = null;
+              isBulkMode = false;
+              selectedNotes.clear();
+              bulkActions.style.display = 'none';
+              renderNotesList(); clearEditor(); updateBreadcrumb();
+              closeCatMenu();
+            });
+          }
+
+          const acts = document.createElement('div');
+          acts.className = 'cat-item-actions';
+
+          // Direct actions for non-General categories (only show if not in bulk mode)
+          if (c !== 'General' && !isCatBulkMode) {
+            const editBtn = document.createElement('button');
+            editBtn.title = 'Rename Category';
+            editBtn.innerHTML = '<i data-lucide="edit-2" size="14"></i>';
+            editBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              renameCategory(c, nameEl);
+            });
+
+            const delBtn = document.createElement('button');
+            delBtn.title = 'Delete Category';
+            delBtn.className = 'danger-hover';
+            delBtn.innerHTML = '<i data-lucide="trash-2" size="14"></i>';
+            delBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              deleteCategory(c);
+            });
+
+            acts.appendChild(editBtn);
+            acts.appendChild(delBtn);
+          }
+
+          item.appendChild(nameEl); item.appendChild(acts);
+          catMenu.appendChild(item);
+        });
+
+        // Add Category Dropdown Footer for Bulk Operations
+        const footer = document.createElement('div');
+        footer.className = 'cat-menu-footer';
+        footer.style.padding = '8px 10px';
+        footer.style.borderTop = '1px solid var(--border)';
+        footer.style.display = 'flex';
+        footer.style.gap = '8px';
+        footer.style.alignItems = 'center';
+        footer.style.background = 'var(--bg-card)';
+
+        if (!isCatBulkMode) {
+          footer.style.justifyContent = 'center';
+          const bulkBtn = document.createElement('button');
+          bulkBtn.className = 'btn btn-ghost danger';
+          bulkBtn.style.fontSize = '0.75rem';
+          bulkBtn.style.padding = '4px 8px';
+          bulkBtn.style.width = '100%';
+          bulkBtn.style.display = 'flex';
+          bulkBtn.style.alignItems = 'center';
+          bulkBtn.style.justifyContent = 'center';
+          bulkBtn.style.gap = '4px';
+          bulkBtn.innerHTML = '<i data-lucide="trash-2" size="12"></i> Bulk Delete';
+          bulkBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            isCatBulkMode = true;
+            selectedCats.clear();
+            buildCatMenu();
+          });
+          footer.appendChild(bulkBtn);
+        } else {
+          footer.style.justifyContent = 'space-between';
+          const cancelBtn = document.createElement('button');
+          cancelBtn.className = 'btn btn-ghost';
+          cancelBtn.style.fontSize = '0.75rem';
+          cancelBtn.style.padding = '4px 8px';
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            isCatBulkMode = false;
+            selectedCats.clear();
+            buildCatMenu();
+          });
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'btn btn-ghost danger';
+          delBtn.style.fontSize = '0.75rem';
+          delBtn.style.padding = '4px 8px';
+          delBtn.textContent = `Delete (${selectedCats.size})`;
+          delBtn.style.fontWeight = 'bold';
+          delBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const count = selectedCats.size;
+            if (count === 0) return;
+            if (confirm(`Delete ${count} selected categories and all their notes?`)) {
+              categories = categories.filter(x => !selectedCats.has(x));
+              selectedCats.forEach(cat => {
+                delete notesData[cat];
+              });
+              if (selectedCats.has(selectedCategory)) {
+                selectedCategory = categories[0] || null;
+                if (selectedCategory) localStorage.setItem(LASTCAT_KEY, selectedCategory);
+                setCategoryTrigger(selectedCategory);
+              }
+              saveStorage();
+              isCatBulkMode = false;
+              selectedCats.clear();
+              buildCatMenu();
+              renderNotesList();
+              updateBreadcrumb();
+              syncToFile().catch(() => {});
+              showToast(`✓ ${count} categories deleted`);
+            }
+          });
+
+          footer.appendChild(cancelBtn);
+          footer.appendChild(delBtn);
+        }
+        catMenu.appendChild(footer);
+
+        try { lucide.createIcons(); } catch { }
+      }
+
+      function renameCategory(catName, nameEl) {
+        if (!nameEl) return;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = catName;
+        input.style.width = '120px';
+        input.style.padding = '2px 6px';
+        input.style.border = '1.5px solid var(--primary)';
+        input.style.borderRadius = '4px';
+        input.style.fontFamily = 'inherit';
+        input.style.fontSize = '0.9rem';
+        input.style.outline = 'none';
+
+        const originalText = nameEl.textContent;
+        nameEl.innerHTML = '';
+        nameEl.appendChild(input);
+        input.focus();
+        input.select();
+
+        let finished = false;
+        const finishRename = () => {
+          if (finished) return;
+          finished = true;
+          const n = input.value.trim();
+          if (!n || n === catName) {
+            nameEl.textContent = originalText;
+            return;
+          }
+          if (categories.includes(n)) {
+            alert('Name already exists');
+            nameEl.textContent = originalText;
+            return;
+          }
+          const idx = categories.indexOf(catName);
+          categories[idx] = n;
+          notesData[n] = notesData[catName] || [];
+          delete notesData[catName];
+
+          if (selectedCategory === catName) {
+            selectedCategory = n;
+            localStorage.setItem(LASTCAT_KEY, n);
+            setCategoryTrigger(n);
+          }
+
+          saveStorage();
+          buildCatMenu();
+          renderNotesList(); 
+          updateBreadcrumb();
+          syncToFile().catch(() => { });
+          closeCatMenu();
+          showToast('✓ Category renamed');
+        };
+
+        input.addEventListener('keydown', ev => {
+          if (ev.key === 'Enter') {
+            ev.preventDefault();
+            finishRename();
+          } else if (ev.key === 'Escape') {
+            ev.stopPropagation();
+            finished = true;
+            nameEl.textContent = originalText;
+          }
+        });
+
+        input.addEventListener('blur', finishRename);
+      }
+
+      function deleteCategory(catName) {
+        if (!confirm(`Delete category "${catName}" and all its notes?`)) return;
+        categories = categories.filter(x => x !== catName);
+        delete notesData[catName];
+
+        if (selectedCategory === catName) {
+          selectedCategory = categories[0] || null;
+          if (selectedCategory) localStorage.setItem(LASTCAT_KEY, selectedCategory);
+          setCategoryTrigger(selectedCategory);
+        }
+
+        saveStorage();
+        buildCatMenu();
+        renderNotesList(); clearEditor(); updateBreadcrumb();
+        syncToFile().catch(() => { });
+        closeCatMenu();
+        showToast('✓ Category deleted');
+      }
+
+      function updateCategoryDropdown() {
+        const last = localStorage.getItem(LASTCAT_KEY);
+        if (last && categories.includes(last)) setCategoryTrigger(last);
+        else if (categories.length) setCategoryTrigger(categories[0]);
+        else setCategoryTrigger(null);
+        buildCatMenu();
+        renderNotesList(); clearEditor();
+      }
+
+      // Toggle dropdown open/close
+      catTrigger.addEventListener('click', e => {
+        e.stopPropagation();
+        settingsMenu.classList.remove('open');
+        const isOpen = catMenu.classList.contains('open');
+        closeCatMenu();
+        if (!isOpen) { buildCatMenu(); catMenu.classList.add('open'); catTrigger.classList.add('open'); }
+      });
+
+      // Settings dropdown logic
+      settingsBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        closeCatMenu();
+        settingsMenu.classList.toggle('open');
+      });
+
+      // Close on outside click
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.settings-wrap')) settingsMenu.classList.remove('open');
+        if (!e.target.closest('.cat-drop-wrap')) closeCatMenu();
+      });
+
+      // Settings application
+      function applySettings() {
+        const ff = localStorage.getItem(NOTES_PREFIX + 'fontFamily') || "'Lexend', sans-serif";
+        const fs = localStorage.getItem(NOTES_PREFIX + 'fontSize') || '16px';
+        const lh = localStorage.getItem(NOTES_PREFIX + 'lineHeight') || '1.6';
+        const ww = localStorage.getItem(NOTES_PREFIX + 'wordWrap') !== 'false';
+        editor.style.fontFamily = ff;
+        editor.style.fontSize = fs;
+        editor.style.lineHeight = lh;
+        if (!ww) editor.classList.add('no-wrap'); else editor.classList.remove('no-wrap');
+        settingFontFamily.value = ff;
+        settingFontSize.value = fs;
+        settingLineHeight.value = lh;
+        settingWordWrap.checked = ww;
+      }
+
+      settingFontFamily.addEventListener('change', () => {
+        localStorage.setItem(NOTES_PREFIX + 'fontFamily', settingFontFamily.value);
+        applySettings();
+      });
+
+      settingFontSize.addEventListener('change', () => {
+        localStorage.setItem(NOTES_PREFIX + 'fontSize', settingFontSize.value);
+        applySettings();
+      });
+
+      settingLineHeight.addEventListener('change', () => {
+        localStorage.setItem(NOTES_PREFIX + 'lineHeight', settingLineHeight.value);
+        applySettings();
+      });
+
+      settingWordWrap.addEventListener('change', () => {
+        localStorage.setItem(NOTES_PREFIX + 'wordWrap', settingWordWrap.checked);
+        applySettings();
+      });
+
+      resetFontFamily.addEventListener('click', () => {
+        localStorage.setItem(NOTES_PREFIX + 'fontFamily', "'Lexend', sans-serif");
+        applySettings();
+      });
+
+      resetFontSize.addEventListener('click', () => {
+        localStorage.setItem(NOTES_PREFIX + 'fontSize', '16px');
+        applySettings();
+      });
+
+      resetLineHeight.addEventListener('click', () => {
+        localStorage.setItem(NOTES_PREFIX + 'lineHeight', '1.6');
+        applySettings();
+      });
+
+      // Underline logic
+      underlineBtn.addEventListener('click', (e) => {
+        editor.focus();
+        document.execCommand('underline', false, null);
+      });
+
+      // Horizontal Line logic
+      lineBtn.addEventListener('click', () => {
+        document.execCommand('insertHorizontalRule', false, null);
+        editor.focus();
+      });
+
+      // Format as JSON logic
+      formatJsonBtn.addEventListener('click', () => {
+        try {
+          const raw = editor.innerText.trim();
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          editor.innerText = JSON.stringify(parsed, null, 2);
+          showToast('✓ JSON Formatted');
+        } catch (e) {
+          showToast('Invalid JSON');
+        }
+      });
+
+      // Category actions
+      btnAddCat.addEventListener('click', () => {
+        const name = prompt('Enter new category name:');
+        if (!name) return;
+        const n = name.trim(); if (!n) return;
+        if (categories.includes(n)) { alert('Category already exists'); return; }
+        categories.push(n); notesData[n] = []; saveStorage();
+        setCategoryTrigger(n); updateCategoryDropdown(); renderNotesList();
+        syncToFile().catch(() => { });
+        showToast('✓ Category created');
+      });
+
+      let selectedNotes = new Set();
+      let isBulkMode = false;
+      let isCatBulkMode = false;
+      let selectedCats = new Set();
+      // Render compact list
+      // --- Render compact list (modified to use optional note.title) ---
+      function renderNotesList() {
+        notesListInner.innerHTML = '';
+
+        if (!selectedCategory) {
+          notesListInner.innerHTML = `<div class="empty-state"><i data-lucide="folder-open" size="28"></i><span>Select a category</span></div>`;
+          try { lucide.createIcons(); } catch { }
+          return;
+        }
+        const arr = notesData[selectedCategory] || [];
+        if (arr.length === 0) {
+          notesListInner.innerHTML = `<div class="empty-state"><i data-lucide="file-plus" size="28"></i><span>No notes yet</span></div>`;
+          try { lucide.createIcons(); } catch { }
+          return;
+        }
+
+        // newest first, numbering follows creation order (1=oldest, N=newest)
+        // Revert to ascending order (1=oldest at top, N=newest at bottom) as per last request
+        arr.forEach((note, idx) => {
+          const realIndex = idx;
+          const displayIndex = idx + 1;
+          const row = document.createElement('div');
+          row.className = 'note-row' + (selectedNoteIndex === realIndex ? ' active' : '');
+          row.addEventListener('click', (e) => {
+            if (isBulkMode) {
+              const cb = row.querySelector('input[type="checkbox"]');
+              if (cb && e.target !== cb) cb.click();
+              return;
+            }
+            openNoteByIndex(realIndex);
+          });
+
+          if (isBulkMode) {
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.style.marginRight = '8px';
+            checkbox.checked = selectedNotes.has(realIndex);
+            checkbox.addEventListener('change', () => {
+              if (checkbox.checked) selectedNotes.add(realIndex);
+              else selectedNotes.delete(realIndex);
+              updateBulkActions();
+            });
+            row.appendChild(checkbox);
+          }
+
+          const indexNum = document.createElement('span');
+          indexNum.className = 'index-num';
+          indexNum.textContent = displayIndex;
+
+          const title = document.createElement('div');
+          title.className = 'title';
+          const plainContent = stripHtml(note.content || '');
+          const firstLine = plainContent.replace(/\r\n/g, '\n').split('\n')[0].trim();
+          const displayTitle = (note.title && note.title.toString().trim()) ? note.title.toString().trim() : (firstLine || 'Untitled Note');
+          title.title = displayTitle;
+          const truncated = displayTitle.slice(0, 60);
+          title.innerHTML = makeLinksClickable(truncated);
+          title.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            renameNoteByIndex(realIndex);
+          });
+
+          const actions = document.createElement('div');
+          actions.className = 'row-actions';
+
+          const moreBtn = document.createElement('button');
+          moreBtn.title = 'Options';
+          moreBtn.innerHTML = '<i data-lucide="more-vertical" size="16"></i>';
+          moreBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            showNoteContextMenu(ev, realIndex);
+          });
+
+          actions.appendChild(moreBtn);
+          row.appendChild(indexNum);
+          row.appendChild(title);
+          row.appendChild(actions);
+
+          notesListInner.appendChild(row);
+        });
+
+        try { lucide.createIcons(); } catch { }
+      }
+
+      const bulkActions = document.getElementById('bulkActions');
+      const selectAll = document.getElementById('selectAll');
+      const btnBulkDelete = document.getElementById('btnBulkDelete');
+      const selectedCount = document.getElementById('selectedCount');
+
+      function updateBulkActions() {
+        selectedCount.textContent = selectedNotes.size;
+        const total = (notesData[selectedCategory] || []).length;
+        selectAll.checked = total > 0 && selectedNotes.size === total;
+      }
+
+      selectAll.addEventListener('change', () => {
+        const arr = notesData[selectedCategory] || [];
+        if (selectAll.checked) {
+          arr.forEach((_, i) => selectedNotes.add(i));
+        } else {
+          selectedNotes.clear();
+        }
+        renderNotesList();
+      });
+
+      btnBulkDelete.addEventListener('click', () => {
+        const count = selectedNotes.size;
+        if (count === 0 || !confirm(`Delete ${count} selected notes?`)) return;
+        let arr = notesData[selectedCategory] || [];
+        const toDelete = Array.from(selectedNotes).sort((a, b) => b - a);
+        toDelete.forEach(idx => arr.splice(idx, 1));
+        notesData[selectedCategory] = arr;
+        selectedNoteIndex = null;
+        isBulkMode = false;
+        selectedNotes.clear();
+        bulkActions.style.display = 'none';
+        clearEditor();
+        saveStorage();
+        renderNotesList();
+        syncToFile().catch(() => { });
+        showToast(`✓ ${count} notes deleted`);
+      });
+
+
+
+      // --- Open note by index (unchanged except it now considers title field while preserving content) ---
+      function openNoteByIndex(index) {
+        if (!selectedCategory) return;
+        const arr = notesData[selectedCategory] || [];
+        if (index < 0 || index >= arr.length) return;
+        const note = arr[index];
+        editor.innerHTML = note.content || '';
+        selectedNoteIndex = index;
+        lastSaved.textContent = note.updatedAt ? new Date(note.updatedAt).toLocaleString() : '—';
+        renderNotesList();
+        updateBreadcrumb();
+      }
+
+      // --- Save current note ---
+      function saveCurrentNote(isAutoSaveFromNew = false) {
+        const wasNewNote = (selectedNoteIndex === null);
+
+        if (!selectedCategory) { if (!isAutoSaveFromNew) alert('Please select a category first.'); return false; }
+        const content = editor.innerHTML;
+        if (!editor.innerText.trim() && !content.includes('<hr')) return false;
+
+        const now = new Date().toISOString();
+        notesData[selectedCategory] = notesData[selectedCategory] || [];
+
+        const isAutoTitle = document.getElementById('autoTitleToggle')?.checked;
+
+        if (selectedNoteIndex !== null) {
+          // --- EXISTING NOTE: update in place to maintain chronological order ---
+          if (!confirm('Do you want to update?')) return false;
+          notesData[selectedCategory][selectedNoteIndex].content = content;
+          notesData[selectedCategory][selectedNoteIndex].updatedAt = now;
+          showToast('✓ Note updated');
+        } else {
+          // --- NEW NOTE: determine name ---
+          let tt = '';
+          if (isAutoTitle) {
+            const plainContent = stripHtml(content);
+            tt = plainContent.replace(/\r\n/g, '\n').split('\n')[0].trim();
+          } else {
+            const namePrompt = prompt('Enter note name:');
+            if (namePrompt === null) return false; // Abort saving if user clicks Cancel
+            tt = namePrompt.toString().trim();
+          }
+
+          const newNote = { id: uid(), content, updatedAt: now };
+          if (tt !== '') newNote.title = tt;
+
+          notesData[selectedCategory].push(newNote);
+          selectedNoteIndex = notesData[selectedCategory].length - 1;
+          showToast('✓ Note saved');
+        }
+
+        saveStorage();
+        lastSaved.textContent = new Date().toLocaleString();
+        renderNotesList();
+        // File sync (prompts for path on first save if none selected)
+        syncToFile().catch(err => { if (err && err.name !== 'AbortError') console.error(err); });
+
+        const originalText = saveNoteBtn.innerHTML;
+        saveNoteBtn.innerHTML = '<i data-lucide="check" size="14"></i> Saved';
+        try { lucide.createIcons(); } catch { }
+
+        // show saved feedback briefly, then clear editor ONLY if this was a NEW note and NOT an auto-save from New button
+        setTimeout(() => {
+          saveNoteBtn.innerHTML = originalText;
+          try { lucide.createIcons(); } catch { }
+
+          if (!isAutoSaveFromNew) {
+            if (wasNewNote && !isAutoTitle) {
+              editor.innerText = '';
+              selectedNoteIndex = null;
+              lastSaved.textContent = '—';
+              document.querySelectorAll('.note-row').forEach(el => el.classList.remove('active'));
+              editor.focus();
+            } else {
+              editor.focus();
+            }
+          }
+        }, 400);
+        
+        return true;
+      }
+
+
+      function deleteNoteByIndex(index) {
+        if (!selectedCategory) return;
+        const arr = notesData[selectedCategory] || [];
+        arr.splice(index, 1);
+        notesData[selectedCategory] = arr;
+        saveStorage();
+        if (selectedNoteIndex === index) { selectedNoteIndex = null; clearEditor(); }
+        else if (selectedNoteIndex > index) { selectedNoteIndex--; } // adjust index if a preceding note was deleted
+        renderNotesList();
+        syncToFile().catch(() => { });
+        showToast('✓ Note deleted');
+      }
+
+      function renameNoteByIndex(index) {
+        if (!selectedCategory) return;
+        const arr = notesData[selectedCategory] || [];
+        const note = arr[index];
+        if (!note) return;
+
+        const rows = document.querySelectorAll('.note-row');
+        const row = rows[index];
+        if (!row) return;
+
+        const titleEl = row.querySelector('.title');
+        if (!titleEl) return;
+
+        const currentTitle = note.title || (note.content || '').split('\n')[0].trim() || 'Untitled Note';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentTitle;
+        input.style.width = '100%';
+        input.style.padding = '2px 6px';
+        input.style.border = '1.5px solid var(--primary)';
+        input.style.borderRadius = '4px';
+        input.style.fontFamily = 'inherit';
+        input.style.fontSize = 'inherit';
+        input.style.outline = 'none';
+
+        const originalHTML = titleEl.innerHTML;
+        titleEl.innerHTML = '';
+        titleEl.appendChild(input);
+        input.focus();
+        input.select();
+
+        let finished = false;
+        const finishRename = () => {
+          if (finished) return;
+          finished = true;
+          const newTitle = input.value.trim();
+          if (newTitle === '' || newTitle === currentTitle) {
+            titleEl.innerHTML = originalHTML;
+            return;
+          }
+          note.title = newTitle;
+          note.updatedAt = new Date().toISOString();
+          saveStorage();
+          renderNotesList();
+          updateBreadcrumb();
+          syncToFile().catch(() => { });
+          showToast('✓ Note renamed');
+        };
+
+        input.addEventListener('keydown', ev => {
+          if (ev.key === 'Enter') {
+            ev.preventDefault();
+            finishRename();
+          } else if (ev.key === 'Escape') {
+            ev.stopPropagation();
+            finished = true;
+            titleEl.innerHTML = originalHTML;
+          }
+        });
+
+        input.addEventListener('blur', finishRename);
+      }
+
+      function showNoteContextMenu(e, index) {
+        let menu = document.getElementById('noteCtxMenu');
+        if (!menu) {
+          menu = document.createElement('div');
+          menu.id = 'noteCtxMenu';
+          menu.className = 'ctx-menu';
+          document.body.appendChild(menu);
+        }
+
+        menu.innerHTML = '';
+        const edit = document.createElement('div');
+        edit.className = 'ctx-item';
+        edit.innerHTML = '<i data-lucide="edit-2" size="14"></i> Rename';
+        edit.onclick = () => {
+          renameNoteByIndex(index);
+          menu.classList.remove('open');
+        };
+
+        const selectMul = document.createElement('div');
+        selectMul.className = 'ctx-item';
+        selectMul.innerHTML = '<i data-lucide="check-square" size="14"></i> Select Multiple';
+        selectMul.onclick = () => {
+          isBulkMode = true;
+          bulkActions.style.display = 'flex';
+          selectedNotes.clear();
+          selectedNotes.add(index);
+          updateBulkActions();
+          renderNotesList();
+          menu.classList.remove('open');
+        };
+
+        const del = document.createElement('div');
+        del.className = 'ctx-item danger';
+        del.innerHTML = '<i data-lucide="trash-2" size="14"></i> Delete';
+        del.onclick = () => {
+          if (confirm('Delete this note?')) {
+            deleteNoteByIndex(index);
+            menu.classList.remove('open');
+          }
+        };
+
+        menu.appendChild(edit);
+        menu.appendChild(selectMul);
+        menu.appendChild(del);
+
+        menu.style.top = e.clientY + 'px';
+        menu.style.left = (e.clientX - 100) + 'px';
+        menu.classList.add('open');
+
+        const closeOnOutside = (ev) => {
+          if (!menu.contains(ev.target)) {
+            menu.classList.remove('open');
+            document.removeEventListener('mousedown', closeOnOutside);
+          }
+        };
+        setTimeout(() => document.addEventListener('mousedown', closeOnOutside), 10);
+        try { lucide.createIcons(); } catch { }
+      }
+
+      function updateBreadcrumb() {
+        const catEl = document.getElementById('bcCategory');
+        const noteEl = document.getElementById('bcNote');
+        if (catEl) catEl.textContent = selectedCategory || '—';
+        if (noteEl) {
+          if (selectedNoteIndex !== null && selectedCategory) {
+            const note = (notesData[selectedCategory] || [])[selectedNoteIndex];
+            if (note) {
+              const plainContent = stripHtml(note.content || '');
+              const firstLine = plainContent.replace(/\r\n/g, '\n').split('\n')[0].trim();
+              const title = (note.title && note.title.trim()) ? note.title.trim() : (firstLine || 'Untitled');
+              noteEl.textContent = title.slice(0, 50);
+            } else noteEl.textContent = '';
+          } else noteEl.textContent = '';
+        }
+      }
+
+      function clearEditor() {
+        editor.innerHTML = '';
+        selectedNoteIndex = null;
+        lastSaved.textContent = '—';
+        document.querySelectorAll('.note-row').forEach(el => el.classList.remove('active'));
+        updateBreadcrumb();
+      }
+
+
+
+      saveNoteBtn.addEventListener('click', () => saveCurrentNote(false));
+      newNoteBtn.addEventListener('click', () => { 
+        const isAutoTitle = document.getElementById('autoTitleToggle')?.checked;
+        if (isAutoTitle) {
+          saveCurrentNote(true);
+        }
+        clearEditor(); 
+        editor.focus(); 
+      });
+      deleteNoteBtn.addEventListener('click', () => { if (selectedNoteIndex === null) return; if (confirm('Delete currently open note?')) deleteNoteByIndex(selectedNoteIndex); });
+
+      // Export/Import
+      btnExport.addEventListener('click', () => {
+        const data = { categories, notesData };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'mynotes_backup.json';
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      });
+
+      btnImport.addEventListener('click', () => importFile.click());
+
+      // Import handler: supports JSON backups and plain .txt files.
+      importFile.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        const txtFiles = files.filter(f => f.type.startsWith('text') || /\.txt$/i.test(f.name));
+        const jsonFiles = files.filter(f => f.type === 'application/json' || /\.json$/i.test(f.name));
+
+        // Helper to ensure category exists
+        function ensureCategory(cat) {
+          if (!categories.includes(cat)) {
+            categories.push(cat);
+            notesData[cat] = notesData[cat] || [];
+          }
+        }
+
+        // Process json backups (only first json if multiple)
+        if (jsonFiles.length) {
+          const f = jsonFiles[0];
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            try {
+              const parsed = JSON.parse(ev.target.result);
+              if (parsed.categories && parsed.notesData) {
+                if (!confirm('This will overwrite all current notes. Continue?')) return;
+                categories = parsed.categories;
+                notesData = parsed.notesData;
+                saveStorage();
+                updateCategoryDropdown();
+                syncToFile().catch(() => { });
+                alert('Notes imported successfully!');
+              } else {
+                alert('Invalid backup file.');
+              }
+            } catch (err) {
+              alert('Error reading file.');
+            }
+          };
+          reader.readAsText(f);
+        }
+
+        // Process text files (each becomes a new note)
+        if (txtFiles.length) {
+          // target category: current selectedCategory or fallback 'Imported'
+          const targetCat = selectedCategory || 'Imported';
+          ensureCategory(targetCat);
+
+          let pending = txtFiles.length;
+          txtFiles.forEach(file => {
+            const r = new FileReader();
+            r.onload = (ev) => {
+              const text = ev.target.result;
+              const now = new Date().toISOString();
+              const content = text.replace(/\r\n/g, '\n'); // normalize
+              notesData[targetCat] = notesData[targetCat] || [];
+              notesData[targetCat].push({ id: uid(), content, updatedAt: now });
+              pending--;
+              if (pending === 0) {
+                saveStorage();
+                updateCategoryDropdown();
+                // set selected category to the target so user can see imported notes
+                setCategoryTrigger(targetCat);
+                renderNotesList();
+                syncToFile().catch(() => { });
+                alert(`${txtFiles.length} file(s) imported into category "${targetCat}".`);
+              }
+            };
+            r.onerror = () => {
+              pending--;
+              if (pending === 0) {
+                saveStorage();
+                updateCategoryDropdown();
+                renderNotesList();
+                alert('Some files failed to import.');
+              }
+            };
+            r.readAsText(file, 'UTF-8');
+          });
+        }
+
+        // reset the file input so same file can be re-selected later
+        importFile.value = '';
+      });
+
+      // Preview
+      previewBtn.addEventListener('click', () => {
+        // use escaped+linkified content and preserve newlines with <br>
+        const html = makeLinksClickable(editor.innerText).replace(/\n/g, '<br>');
+        previewBody.innerHTML = html;
+        previewModal.style.display = 'flex';
+        previewModal.setAttribute('aria-hidden', 'false');
+      });
+      closePreview.addEventListener('click', () => {
+        previewModal.style.display = 'none';
+        previewModal.setAttribute('aria-hidden', 'true');
+      });
+      previewModal.addEventListener('click', (e) => { if (e.target === previewModal) closePreview.click(); });
+
+      // Shortcuts
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { 
+          e.preventDefault(); 
+          saveCurrentNote(); 
+        }
+        if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') || (e.altKey && e.key.toLowerCase() === 'n')) {
+          e.preventDefault();
+          newNoteBtn.click();
+        }
+        if (e.key === 'Escape') {
+          // Close Preview Modal
+          if (previewModal && previewModal.style.display === 'flex') {
+            closePreview.click();
+          }
+          // Exit Bulk Delete Mode
+          if (isBulkMode) {
+            isBulkMode = false;
+            bulkActions.style.display = 'none';
+            selectedNotes.clear();
+            renderNotesList();
+            showToast('✓ Bulk delete exited');
+          }
+          // Close note context menu
+          const ctxMenu = document.getElementById('noteCtxMenu');
+          if (ctxMenu && ctxMenu.classList.contains('open')) {
+            ctxMenu.classList.remove('open');
+          }
+        }
+      });
+
+      // Calculator logic (unchanged)
+      let isDragging = false, dragOffsetX = 0, dragOffsetY = 0;
+      function toggleCalculator() {
+        calcPopup.classList.toggle('open');
+        if (calcPopup.classList.contains('open')) {
+          const rect = calcPopup.getBoundingClientRect();
+          if (rect.right > window.innerWidth || rect.bottom > window.innerHeight) {
+            calcPopup.style.top = '100px'; calcPopup.style.left = '100px';
+          }
+        }
+      }
+      // File button handlers
+      openFileBtn.addEventListener('click', () => openNotesFile());
+      syncBtn.addEventListener('click', () => syncFromFile());
+
+      calcHandle.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        const rect = calcPopup.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left; dragOffsetY = e.clientY - rect.top;
+        try { calcHandle.setPointerCapture(e.pointerId); } catch (err) { }
+      });
+
+      document.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        let x = e.clientX - dragOffsetX; let y = e.clientY - dragOffsetY;
+        const w = calcPopup.offsetWidth; const h = calcPopup.offsetHeight;
+        x = Math.max(10, Math.min(window.innerWidth - w - 10, x));
+        y = Math.max(10, Math.min(window.innerHeight - h - 10, y));
+        calcPopup.style.left = x + 'px'; calcPopup.style.top = y + 'px';
+      });
+
+      document.addEventListener('pointerup', (e) => {
+        isDragging = false; try { calcHandle.releasePointerCapture(e.pointerId); } catch (err) { }
+      });
+
+      calcPopup.querySelectorAll('.calc-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.dataset.val; const action = btn.dataset.action;
+          if (action === 'clear') calcDisplay.value = '';
+          else if (action === 'back') calcDisplay.value = calcDisplay.value.slice(0, -1);
+          else if (action === 'equals') {
+            try { calcDisplay.value = eval(calcDisplay.value) || ''; } catch { calcDisplay.value = 'Error'; }
+          } else if (val) calcDisplay.value += val;
+        });
+      });
+
+      // init
+      init();
+      initFileHandle();
+      applySettings();
+      try { document.execCommand('styleWithCSS', false, false); } catch (e) { }
+      updateBreadcrumb();
+    });
+  </script>
+  <!-- Toast Message (keep before </body>) -->
+  <!-- Toast Message (top-center) -->
+  <div id="toast" style="
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translate(-50%, -8px);
+  background: #10b981;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  z-index: 9999;
+">Copied!</div>
+
+
+</body>
+
+</html>
